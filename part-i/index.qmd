@@ -1,0 +1,13 @@
+# Part I: Research Design and Gravity Foundations {.unnumbered}
+
+Part I introduces NREC6006 as a replication-based graduate research workshop in applied international trade. The course is centered on a Post-Soviet gravity paper, a cleaned bilateral dataset, and the translation of gravity workflows into transparent Python code.
+
+Students begin with replication because it teaches the discipline of empirical research: understand the paper, rebuild the data, reproduce the tables, diagnose differences, and only then extend the design to a new question. The reference dataset contains 5,253 observations, 15 exporters, 15 importers, and years 1992-2020. Core institutional variables are $wto\_joint$, $EU\_joint$, and $EAEU\_joint$.
+
+| Chp | Topic | Main Output |
+|---|---|---|
+| [01](chp-01-course-overview.qmd) | Overview | Replication roadmap |
+| [02](chp-02-international-trade-as-applied-research.qmd) | Trade research | Research question map |
+| [03](chp-03-gravity-model-intuition.qmd) | Gravity theory | Gravity concept note |
+
+This part contributes to the final publication-style paper by showing how a gravity paper is built from a research question, dataset, estimator sequence, robustness logic, and interpretation. The final course output is a reproducible Python notebook and a publication-style gravity research paper.

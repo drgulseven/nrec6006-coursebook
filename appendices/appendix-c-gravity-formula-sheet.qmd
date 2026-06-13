@@ -1,0 +1,283 @@
+---
+title: "Formula Sheet"
+---
+
+## Purpose
+
+This appendix collects the formulas used in the Post-Soviet replication and in the final region-specific gravity paper. Use it to keep notation consistent across notebooks, tables, and the methodology section.
+
+## Notation
+
+| Symbol | Meaning |
+|---|---|
+| $i$ | Exporter |
+| $j$ | Importer |
+| $t$ | Year |
+| $X_{ijt}$ | Bilateral exports or trade flow |
+| $Y_{it}$ | Exporter economic size |
+| $Y_{jt}$ | Importer economic size |
+| $D_{ij}$ | Bilateral distance or trade-cost proxy |
+| $Z_{ijt}$ | Additional bilateral and institutional controls |
+| $\alpha_i$, $\delta_j$, $\lambda_t$ | Exporter, importer, and year fixed effects |
+| $\mu_{ij}$ | Country-pair fixed effect |
+| $\alpha_{it}$, $\delta_{jt}$ | Exporter-year and importer-year fixed effects |
+
+In the Post-Soviet project, $X_{ijt}$ is measured by $flow$, economic size by $gdp\_o$ and $gdp\_d$, distance by $distw$, and institutional variables by $wto\_joint$, $EU\_joint$, and $EAEU\_joint$.
+
+## Basic Gravity
+
+The intuitive gravity equation is:
+
+$$
+X_{ij}
+= G Y_i^{\beta_1}
+Y_j^{\beta_2}
+D_{ij}^{\beta_3}
+$$
+
+If distance is expected to reduce trade, $\beta_3$ should be negative. Some textbooks write distance in the denominator; both forms express the same intuition when the distance coefficient is signed correctly.
+
+## Log-Linear Gravity
+
+The baseline empirical model is:
+
+$$
+\begin{aligned}
+\log X_{ijt}
+&= \beta_0
++ \beta_1 \log Y_{it}
++ \beta_2 \log Y_{jt} \\
+&\quad + \beta_3 \log D_{ij}
++ \gamma Z_{ijt}
++ \varepsilon_{ijt}
+\end{aligned}
+$$
+
+This model is easy to estimate with OLS and easy to interpret. It should be treated as a teaching baseline, not the final word, because it excludes zero trade flows and can be biased under heteroskedasticity.
+
+## Post-Soviet OLS Specification
+
+The course replication begins with:
+
+$$
+\begin{aligned}
+\log(flow_{ijt})
+&= \beta_0
++ \beta_1 \log(gdp\_o_{it})
++ \beta_2 \log(gdp\_d_{jt}) \\
+&\quad + \beta_3 \log(distw_{ij})
++ \gamma_1 comlang\_off_{ij}
++ \gamma_2 contig_{ij} \\
+&\quad + \gamma_3 wto\_joint_{ijt}
++ \gamma_4 EU\_joint_{ijt}
++ \gamma_5 EAEU\_joint_{ijt}
++ \varepsilon_{ijt}
+\end{aligned}
+$$
+
+Logged GDP coefficients are elasticity-like. Dummy coefficients should be converted to percent effects using the formula below.
+
+## Structural Gravity
+
+A compact structural gravity expression is:
+
+$$
+\begin{aligned}
+X_{ij}
+&= \frac{Y_i E_j}{Y}
+\left(
+\frac{\tau_{ij}}{\Pi_i P_j}
+\right)^{1-\sigma}
+\end{aligned}
+$$
+
+Here, $\tau_{ij}$ is bilateral trade cost, $\Pi_i$ is outward multilateral resistance, $P_j$ is inward multilateral resistance, and $\sigma$ is the elasticity of substitution. The key implication is practical: bilateral trade depends on relative trade costs, not only the direct cost between two countries.
+
+## Fixed-Effects Gravity
+
+A standard fixed-effects version is:
+
+$$
+\begin{aligned}
+\log X_{ijt}
+&= \beta_1 \log D_{ij}
++ \gamma Z_{ijt}
++ \alpha_i
++ \delta_j
++ \lambda_t
++ \varepsilon_{ijt}
+\end{aligned}
+$$
+
+Exporter, importer, and year fixed effects absorb broad country and time differences. They make coefficient interpretation more conditional.
+
+## Pair Fixed Effects
+
+Pair fixed effects compare a country pair with itself over time:
+
+$$
+\begin{aligned}
+\log X_{ijt}
+&= \gamma_1 wto\_joint_{ijt}
++ \gamma_2 EU\_joint_{ijt}
++ \gamma_3 EAEU\_joint_{ijt} \\
+&\quad + \mu_{ij}
++ \lambda_t
++ \varepsilon_{ijt}
+\end{aligned}
+$$
+
+Time-invariant variables such as $distw$, $comlang\_off$, and $contig$ are absorbed by $\mu_{ij}$ and cannot be estimated separately.
+
+## Structural Fixed Effects
+
+A saturated structural gravity specification often uses exporter-year and importer-year fixed effects:
+
+$$
+\begin{aligned}
+E[X_{ijt} \mid Z_{ijt}]
+&= \exp\left(
+\gamma Z_{ijt}
++ \mu_{ij}
++ \alpha_{it}
++ \delta_{jt}
+\right)
+\end{aligned}
+$$
+
+This structure absorbs exporter-year supply conditions, importer-year demand conditions, and time-varying multilateral resistance. GDP variables are usually absorbed.
+
+## Double Demeaning
+
+For a variable $x_{ij}$ with exporter and importer groups:
+
+$$
+\tilde{x}_{ij}
+= x_{ij}
+- \bar{x}_{i\cdot}
+- \bar{x}_{\cdot j}
++ \bar{x}
+$$
+
+The transformed variable removes exporter and importer means. Double demeaning is useful for teaching fixed-effects logic because it shows how group averages are removed before estimation.
+
+## BVU
+
+Bonus Vetus OLS uses normalized gravity logic to approximate structural trade-cost effects. A simple teaching version uses trade intensity:
+
+$$
+\begin{aligned}
+\log TI_{ijt}
+&= \log(flow_{ijt})
+- \log(gdp\_o_{it})
+- \log(gdp\_d_{jt})
+\end{aligned}
+$$
+
+Then estimate:
+
+$$
+\begin{aligned}
+\log TI_{ijt}
+&= \beta_0
++ \beta_1 \log(distw_{ij})
++ \gamma Z_{ijt}
++ \varepsilon_{ijt}
+\end{aligned}
+$$
+
+This is a teaching approximation. Publication work should verify the exact Bonus Vetus transformation against the intended reference implementation.
+
+## BVW
+
+BVW extends the normalization logic by using GDP-weighted averages to approximate multilateral resistance:
+
+$$
+\begin{aligned}
+x^{BVW}_{ijt}
+&= x_{ijt}
+- \sum_j s_{jt} x_{ijt}
+- \sum_i s_{it} x_{ijt} \\
+&\quad + \sum_i \sum_j s_{it}s_{jt} x_{ijt}
+\end{aligned}
+$$
+
+Here, $s_{it}$ and $s_{jt}$ are GDP shares. The exact implementation is more involved than this compact expression, so students should treat classroom BVW code as a transparent learning tool.
+
+## PPML
+
+PPML estimates trade in levels:
+
+$$
+\begin{aligned}
+E[X_{ijt} \mid Z_{ijt}]
+&= \exp\left(
+\beta_0
++ \beta_1 \log D_{ij}
++ \gamma Z_{ijt}
+\right)
+\end{aligned}
+$$
+
+PPML can include valid zero trade flows and is robust to important heteroskedasticity problems in log-linear gravity models. It is estimated with a Poisson conditional mean but does not require trade to be count data.
+
+## GPML
+
+GPML uses a Gamma conditional mean with a log link:
+
+$$
+\begin{aligned}
+E[X_{ijt} \mid Z_{ijt}]
+&= \exp(Z_{ijt}\beta),
+\qquad X_{ijt} > 0
+\end{aligned}
+$$
+
+GPML is a positive-flow estimator. It is useful as a robustness check, not as a replacement for explaining zero-flow treatment.
+
+## NBPML
+
+NBPML keeps the multiplicative conditional mean but allows a negative-binomial variance structure:
+
+$$
+\begin{aligned}
+E[X_{ijt} \mid Z_{ijt}]
+&= \exp(Z_{ijt}\beta)
+\end{aligned}
+$$
+
+Use NBPML as a robustness estimator when overdispersion is substantively important and convergence is reliable.
+
+## Dummy Interpretation
+
+For a dummy coefficient $\hat{\gamma}$ in a log-link model:
+
+$$
+\% \Delta X
+= 100 \times
+\left[
+\exp(\hat{\gamma}) - 1
+\right]
+$$
+
+Example interpretation template: joint membership in `[institution]` is associated with a conditional trade difference of $100 \times [\exp(\hat{\gamma}) - 1]$ percent, holding the model controls fixed.
+
+## Elasticity Interpretation
+
+When both dependent and independent variables are logged:
+
+$$
+\frac{\partial \log X}{\partial \log D}
+= \beta_D
+$$
+
+A 1 percent increase in distance is associated with an approximate $\beta_D$ percent change in trade. Because distance coefficients are usually negative, larger distance is expected to reduce trade.
+
+## Reporting Rules
+
+- State the dependent variable exactly.
+- State whether zero flows are included.
+- State which fixed effects are absorbed.
+- Do not report absorbed variables as if they were omitted accidentally.
+- Convert dummy coefficients with $100 \times [\exp(\hat{\gamma}) - 1]$.
+- Use the same notation in tables, equations, and text.

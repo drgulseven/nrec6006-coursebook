@@ -1,0 +1,127 @@
+---
+title: "Institutions"
+---
+
+## Introduction
+
+The Post-Soviet replication uses three institutional variables to study how different forms of integration are associated with bilateral trade: joint WTO membership, joint EU membership, and joint EAEU membership. These variables are useful because the region contains countries with different institutional paths after independence.
+
+The purpose of this chapter is to show that institutional coefficients are not self-interpreting. The same variable can look different across gravity specifications because each estimator controls for scale, trade costs, zeros, and multilateral resistance in a different way.
+
+## The institutional variables
+
+The replication dataset uses pair-year indicators.
+
+| Variable | Definition | Interpretation |
+|---|---|---|
+| $wto\_joint$ | Equals 1 when both exporter and importer are WTO members in year $t$ | Shared multilateral trade-system membership |
+| $EU\_joint$ | Equals 1 when both countries are EU members in year $t$ | Deep regional integration among Baltic EU members |
+| $EAEU\_joint$ | Equals 1 when both countries are EAEU members in year $t$ | Eurasian regional integration after 2015 |
+
+These variables do not measure policy implementation directly. They measure shared institutional status within a pair-year.
+
+## Coefficient comparison table
+
+The table reports the Python replication coefficients from the executed notebook.
+
+| Model | $wto\_joint$ | $EU\_joint$ | $EAEU\_joint$ |
+|---|---:|---:|---:|
+| Classic OLS | -0.559 | 1.708 | 0.008 |
+| FE OLS | 0.859 | 1.935 | 0.529 |
+| BVU | -0.682 | 1.541 | -0.405 |
+| PPML | -0.496 | 1.370 | 0.484 |
+| GPML | 0.625 | 1.763 | 0.509 |
+| Structural PPML | 0.066 | 1.813 | 0.788 |
+
+The main lesson is not that one row is the truth. The lesson is that institutional interpretation depends on the specification.
+
+## Interpretation method
+
+For dummy variables in log-linear or log-link gravity models, convert a coefficient into an approximate percent difference using:
+
+$$
+100 \times \left(\exp(\beta) - 1\right)
+$$
+
+In Python:
+
+```python
+import numpy as np
+
+def pct(beta):
+    return 100 * (np.exp(beta) - 1)
+```
+
+This transformation is useful for exposition, but it does not turn an association into a causal effect.
+
+## WTO results
+
+The WTO coefficient changes sign across specifications. It is negative in Classic OLS, BVU, and PPML, positive in FE OLS and GPML, and close to zero in Structural PPML.
+
+This pattern suggests that the estimated WTO association is sensitive to model structure. In the fixed-effects models, WTO membership is compared after controlling for exporter and importer heterogeneity. In structural PPML, exporter-year and importer-year fixed effects absorb time-varying multilateral resistance and country-year conditions. Once those controls are included, the WTO coefficient is near zero.
+
+The correct interpretation is cautious: joint WTO membership is not robustly associated with higher intra-regional trade across all specifications. Students should not conclude a simple causal WTO effect from these estimates.
+
+## EU results
+
+$EU\_joint$ is consistently large and positive. It remains positive in Classic OLS, FE OLS, BVU, PPML, GPML, and Structural PPML.
+
+This is the strongest and most stable institutional result in the replication. It suggests that deep integration may matter more than multilateral membership in this regional setting. EU membership involves legal, regulatory, customs, and market-access integration that goes beyond formal membership in a global trade institution.
+
+The interpretation still requires caution. In this sample, EU variation is driven by the three Baltic countries. A large positive coefficient does not mean that EU membership would generate the same trade association for every Post-Soviet economy or for every region.
+
+## EAEU results
+
+$EAEU\_joint$ is generally positive in the fixed-effects and multiplicative models. It is positive in FE OLS, PPML, GPML, and Structural PPML.
+
+The result is weaker and less stable than the EU result. It is close to zero in Classic OLS and negative in BVU. This suggests that the EAEU coefficient is sensitive to sample structure, scale normalization, and the short post-2015 period in which the EAEU indicator is active.
+
+Students should interpret EAEU estimates as conditional associations within the observed Post-Soviet sample, not as a definitive statement about the welfare or trade-creation effects of the institution.
+
+## Model dependence
+
+Institutional coefficients change because gravity models answer different empirical questions.
+
+| Specification issue | Why it matters |
+|---|---|
+| GDP controls vs fixed effects | GDP controls estimate scale effects directly; fixed effects absorb exporter and importer heterogeneity. |
+| Positive-flow sample | Log-linear models exclude zero trade flows. |
+| Normalized trade intensity | BVU changes the dependent variable by scaling trade relative to economic size. |
+| PPML levels | PPML estimates a multiplicative model in trade levels and handles heteroskedasticity differently. |
+| Structural PPML | Exporter-year and importer-year fixed effects absorb time-varying country conditions and multilateral resistance. |
+
+Because each model controls for different sources of variation, the institutional coefficients should be read as a robustness pattern rather than as isolated numbers.
+
+## Writing guidance
+
+Avoid overclaiming.
+
+Weak wording:
+
+> WTO membership causes trade to increase.
+
+Better wording:
+
+> Joint WTO membership is not robustly associated with higher intra-regional trade once time-varying multilateral resistance is controlled.
+
+Weak wording:
+
+> The EU effect proves that EU membership is the best trade policy.
+
+Better wording:
+
+> Joint EU membership is consistently associated with higher bilateral trade across the replication specifications, although the variation is driven by Baltic country pairs.
+
+Weak wording:
+
+> The EAEU increases trade.
+
+Better wording:
+
+> Joint EAEU membership is positive in several fixed-effects and multiplicative specifications, but the result is less stable than the EU coefficient and is sensitive to normalization.
+
+## Short conclusion
+
+Institutional variables are not self-interpreting. In the Post-Soviet replication, deep EU integration appears more robust than WTO or EAEU membership, but all institutional coefficients remain conditional on the sample, model, and fixed-effect structure.
+
+Robustness tables are part of the argument, not appendix decoration. They show whether a policy interpretation survives alternative ways of measuring trade, controlling for heterogeneity, and handling multilateral resistance.

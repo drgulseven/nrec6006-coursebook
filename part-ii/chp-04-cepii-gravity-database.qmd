@@ -1,0 +1,104 @@
+---
+title: "CEPII Data"
+---
+
+## Introduction
+
+The Post-Soviet replication project is built from gravity-style country-pair-year data. The central source is the CEPII Gravity Database, which provides harmonized bilateral trade, geographic, macroeconomic, and institutional variables used in empirical gravity research.
+
+The course dataset is:
+
+```text
+data/ExSoviet_balanced_clean.csv
+```
+
+It contains 5,253 observations, 20 columns, 15 exporters, 15 importers, and years 1992-2020. The teaching dataset contains no zero-flow observations, so all 5,253 observations are positive-flow observations.
+
+## Why CEPII matters
+
+Gravity models require variables for both countries in a pair and for the relationship between them. CEPII is useful because it combines these elements in a single bilateral panel:
+
+- exporter and importer identifiers;
+- bilateral trade flows;
+- GDP and population;
+- distance and geography;
+- language and contiguity indicators;
+- institutional and policy variables.
+
+This structure allows students to estimate whether trade between two countries is associated with economic size, trade costs, and institutional alignment.
+
+## Directed dyad-year structure
+
+The Post-Soviet dataset is a directed dyad-year panel. A directed dyad treats exporter-importer direction as meaningful:
+
+```text
+Armenia -> Azerbaijan in 2015
+Azerbaijan -> Armenia in 2015
+```
+
+These are different observations because exports from country $i$ to country $j$ need not equal exports from country $j$ to country $i$.
+
+Country-pair-year data are needed because gravity models explain bilateral flows over time. The unit of observation is:
+
+```text
+exporter, importer, year
+```
+
+This structure supports pooled OLS, fixed-effects OLS, PPML, GPML, and structural PPML specifications.
+
+## Post-Soviet country sample
+
+The project covers fifteen post-Soviet economies:
+
+Armenia, Azerbaijan, Belarus, Estonia, Georgia, Kazakhstan, Kyrgyzstan, Latvia, Lithuania, Moldova, Russia, Tajikistan, Turkmenistan, Ukraine, and Uzbekistan.
+
+Each country can appear as both exporter and importer. This is why the dataset has 15 exporters and 15 importers.
+
+## CEPII variables in the replication
+
+The replication uses the following required variables:
+
+`flow`, `gdp_o`, `gdp_d`, `distw`, `comlang_off`, `contig`, `wto_joint`, `EU_joint`, `EAEU_joint`, `year`, `iso_o`, and `iso_d`.
+
+The variables map into three empirical roles: trade outcome, gravity controls, and institutional variables.
+
+| Variable family | Example variables | Research use |
+|---|---|---|
+| Exporter-importer identifiers | `iso_o`, `iso_d`, `year` | Define the directed dyad-year observation |
+| Trade flow | `flow` | Dependent variable in OLS, PPML, and GPML |
+| Economic mass | `gdp_o`, `gdp_d` | Exporter and importer economic size |
+| Geographic cost | `distw` | Weighted distance between countries |
+| Bilateral frictions | `comlang_off`, `contig` | Language and border controls |
+| WTO status | `wto_joint` | Both countries are WTO members in year $t$ |
+| EU status | `EU_joint` | Both countries are EU members in year $t$ |
+| EAEU status | `EAEU_joint` | Both countries are EAEU members in year $t$ |
+
+## Institutional variables
+
+The institutional variables are pair-year indicators.
+
+`wto_joint` equals 1 when both countries are WTO members in year $t$. It measures shared multilateral trade-system membership.
+
+`EU_joint` equals 1 when both countries are EU members in year $t$. In this sample, variation comes from the Baltic EU members.
+
+`EAEU_joint` equals 1 when both countries are EAEU members in year $t$. This variable becomes relevant in the post-2015 period.
+
+These indicators do not directly measure implementation quality, tariff changes, customs procedures, or enforcement. They identify shared institutional status.
+
+## Source documentation
+
+Every replication paper should document:
+
+- the database version;
+- country coverage;
+- year coverage;
+- trade-flow definition;
+- variable names;
+- sample restrictions;
+- institutional coding rules.
+
+In this course, students should treat the source inventory as part of the research output, not as background administration.
+
+::: {.callout-note}
+Do not open large CEPII files in spreadsheet software for cleaning. Use Python so every filtering, variable-construction, and export step is reproducible.
+:::

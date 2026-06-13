@@ -1,0 +1,11 @@
+# Part IV: Replicating the Post-Soviet Trade Paper {.unnumbered}
+
+Part IV is the core replication module. Students use the rebuilt dataset and Python translations to reproduce the Post-Soviet gravity paper's baseline estimates, institutional variables, and robustness logic.
+
+| Chp | Topic | Main Output |
+|---|---|---|
+| [11](chp-11-replicating-baseline-results.qmd) | Replication | Baseline replication table |
+| [12](chp-12-institutional-effects-wto-eu-eaeu.qmd) | Institutions | Institutional effects memo |
+| [13](chp-13-robustness-sensitivity-research-transparency.qmd) | Robustness | Replication transparency package |
+
+This part contributes to the final paper by teaching students how to verify an empirical claim before extending it. The replication package becomes a template for transparent publication-ready research.

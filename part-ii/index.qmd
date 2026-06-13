@@ -1,0 +1,13 @@
+# Part II: Building the Post-Soviet Dataset {.unnumbered}
+
+Part II moves from research design to an analysis-ready gravity panel. The reference dataset is `data/ExSoviet_balanced_clean.csv`, a directed Post-Soviet country-pair-year panel with 5,253 observations, 20 columns, 15 exporters, 15 importers, and years 1992-2020.
+
+The section teaches students how CEPII gravity variables become a replication dataset, how Python validates the data structure, and why descriptive evidence must come before regression tables.
+
+| Chp | Topic | Main Output |
+|---|---|---|
+| [04](chp-04-cepii-gravity-database.qmd) | CEPII data | CEPII variable map |
+| [05](chp-05-data-cleaning-with-python.qmd) | Dataset building | Cleaned Post-Soviet panel |
+| [06](chp-06-descriptive-trade-analysis.qmd) | Descriptive analysis | Descriptive statistics and network evidence |
+
+This part contributes to the final publication-ready paper by documenting the empirical sample before estimation begins. A credible gravity paper must explain where the data come from, how variables are constructed, what observations are included, and what the raw patterns suggest before interpreting coefficients.

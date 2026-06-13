@@ -1,0 +1,294 @@
+---
+title: "Bonus Vetus"
+---
+
+## Purpose
+
+This chapter explains Bonus Vetus gravity models and prepares students to implement BVU and BVW for the Post-Soviet replication. Bonus Vetus methods approximate multilateral resistance adjustments when a researcher wants a trade-cost interpretation without estimating a fully structural high-dimensional model.
+
+## Method overview
+
+| Method | Meaning | Weighting |
+|---|---|---|
+| BVU | Bonus Vetus Unweighted | Country means enter symmetrically |
+| BVW | Bonus Vetus Weighted | Country means are weighted by trade or economic shares |
+
+The Post-Soviet case uses the same trade and institutional variables as earlier chapters: `flow`, `gdp_o`, `gdp_d`, `distw`, `comlang_off`, `contig`, `wto_joint`, `EU_joint`, `EAEU_joint`, and `year`.
+
+## Theory
+
+The Bonus Vetus idea starts from the fact that bilateral trade costs affect trade not only directly but also through multilateral resistance. A naive log-linear model estimates the direct association between bilateral variables and trade, but it does not fully account for the way each country relates to all other partners.
+
+Bonus Vetus transformations approximate the general-equilibrium resistance terms by transforming bilateral trade-cost variables before estimation. This is useful when the goal is to estimate trade-cost effects while retaining an interpretable OLS-style model.
+
+## Derivation
+
+Start with a log-linear trade-cost component:
+
+$$
+\begin{aligned}
+\log \tau_{ij}
+&= \theta_1 \log(distw_{ij})
++ \theta_2 comlang\_off_{ij}
++ \theta_3 contig_{ij} \\
+&\quad
++ \theta_4 wto\_joint_{ijt}
++ \theta_5 EU\_joint_{ijt}
++ \theta_6 EAEU\_joint_{ijt}
+\end{aligned}
+$$
+
+For a bilateral variable $x_{ij}$, the unweighted Bonus Vetus transformation can be written as:
+
+$$
+\begin{aligned}
+x^{BVU}_{ij}
+&= x_{ij}
+- \bar{x}_{i \cdot}
+- \bar{x}_{\cdot j}
++ \bar{x}
+\end{aligned}
+$$
+
+where $\bar{x}_{i \cdot}$ is the exporter mean, $\bar{x}_{\cdot j}$ is the importer mean, and $\bar{x}$ is the overall mean.
+
+The weighted version replaces simple means with share-weighted means:
+
+$$
+\begin{aligned}
+x^{BVW}_{ij}
+&= x_{ij}
+- \sum_k s_k x_{ik}
+- \sum_m s_m x_{mj} \\
+&\quad
++ \sum_k \sum_m s_k s_m x_{km}
+\end{aligned}
+$$
+
+where the weights $s_k$ and $s_m$ can be based on economic size or trade shares, depending on the replication design.
+
+## Why Bonus Vetus exists
+
+Bonus Vetus exists because researchers often need a practical bridge between simple OLS gravity and fully structural gravity. It provides a way to approximate multilateral resistance adjustments while keeping a transparent regression workflow.
+
+## Advantages
+
+- More structural than naive pooled OLS.
+- Easier to understand than fully saturated exporter-year and importer-year fixed effects.
+- Can be implemented with transformed variables.
+- Useful for comparing R gravity package workflows with Python code.
+
+## Limitations
+
+- It is an approximation, not a substitute for all structural gravity designs.
+- Weighted versions require defensible weights.
+- Implementation details must match the original replication workflow.
+- It does not automatically solve zero-flow or heteroskedasticity problems.
+
+## BVU equation
+
+A BVU model for the Post-Soviet case can be written as:
+
+$$
+\begin{aligned}
+\log(flow_{ijt})
+&= \beta_0
++ \beta_1 \log(gdp\_o_{it})
++ \beta_2 \log(gdp\_d_{jt}) \\
+&\quad
++ \lambda_1 \log(distw)^{BVU}_{ij}
++ \lambda_2 comlang\_off^{BVU}_{ij}
++ \lambda_3 contig^{BVU}_{ij} \\
+&\quad
++ \lambda_4 wto\_joint^{BVU}_{ijt}
++ \lambda_5 EU\_joint^{BVU}_{ijt}
++ \lambda_6 EAEU\_joint^{BVU}_{ijt} \\
+&\quad
++ \delta_t
++ \varepsilon_{ijt}
+\end{aligned}
+$$
+
+## BVW equation
+
+The BVW model uses weighted transformed variables:
+
+$$
+\begin{aligned}
+\log(flow_{ijt})
+&= \beta_0
++ \beta_1 \log(gdp\_o_{it})
++ \beta_2 \log(gdp\_d_{jt}) \\
+&\quad
++ \lambda_1 \log(distw)^{BVW}_{ij}
++ \lambda_2 comlang\_off^{BVW}_{ij}
++ \lambda_3 contig^{BVW}_{ij} \\
+&\quad
++ \lambda_4 wto\_joint^{BVW}_{ijt}
++ \lambda_5 EU\_joint^{BVW}_{ijt}
++ \lambda_6 EAEU\_joint^{BVW}_{ijt} \\
+&\quad
++ \delta_t
++ \varepsilon_{ijt}
+\end{aligned}
+$$
+
+## R implementation
+
+If the original replication uses the R `gravity` package, the workflow may call Bonus Vetus routines directly. Students should match the function arguments to the manuscript's specification.
+
+```r
+library(dplyr)
+library(gravity)
+
+df <- read.csv("data/gravity_clean.csv")
+
+bv_df <- df %>%
+  filter(flow > 0) %>%
+  mutate(
+    log_flow = log(flow),
+    log_gdp_o = log(gdp_o),
+    log_gdp_d = log(gdp_d),
+    log_distw = log(distw)
+  )
+
+# Package-style workflow, if used in the original replication:
+# bvu_model <- bvu(
+#   dependent_variable = "flow",
+#   distance = "distw",
+#   additional_regressors = c("comlang_off", "contig", "wto_joint", "EU_joint", "EAEU_joint"),
+#   code_origin = "iso3_o",
+#   code_destination = "iso3_d",
+#   data = bv_df
+# )
+```
+
+When direct package calls are not flexible enough, compute transformed variables explicitly and estimate with `feols`.
+
+```r
+double_demean <- function(x, exporter, importer) {
+  x - ave(x, exporter) - ave(x, importer) + mean(x, na.rm = TRUE)
+}
+
+bv_df$log_distw_bvu <- double_demean(bv_df$log_distw, bv_df$iso3_o, bv_df$iso3_d)
+bv_df$contig_bvu <- double_demean(bv_df$contig, bv_df$iso3_o, bv_df$iso3_d)
+
+# Estimate after constructing all required BVU variables.
+```
+
+## Python implementation: BVU
+
+The Python implementation makes the transformation explicit.
+
+```python
+import numpy as np
+import pandas as pd
+import statsmodels.formula.api as smf
+```
+
+```python
+df = pd.read_csv("data/gravity_clean.csv")
+
+bv_df = df.loc[df["flow"] > 0].copy()
+bv_df["log_flow"] = np.log(bv_df["flow"])
+bv_df["log_gdp_o"] = np.log(bv_df["gdp_o"])
+bv_df["log_gdp_d"] = np.log(bv_df["gdp_d"])
+bv_df["log_distw"] = np.log(bv_df["distw"])
+```
+
+```python
+def bvu_transform(data, variable, exporter="iso3_o", importer="iso3_d"):
+    overall = data[variable].mean()
+    exporter_mean = data.groupby(exporter)[variable].transform("mean")
+    importer_mean = data.groupby(importer)[variable].transform("mean")
+    return data[variable] - exporter_mean - importer_mean + overall
+
+for variable in [
+    "log_distw",
+    "comlang_off",
+    "contig",
+    "wto_joint",
+    "EU_joint",
+    "EAEU_joint",
+]:
+    bv_df[f"{variable}_bvu"] = bvu_transform(bv_df, variable)
+```
+
+```python
+bvu_formula = (
+    "log_flow ~ log_gdp_o + log_gdp_d + "
+    "log_distw_bvu + comlang_off_bvu + contig_bvu + "
+    "wto_joint_bvu + EU_joint_bvu + EAEU_joint_bvu + C(year)"
+)
+
+bvu_py = smf.ols(bvu_formula, data=bv_df).fit(cov_type="HC1")
+```
+
+## Python implementation: BVW
+
+BVW requires weights. A transparent teaching choice is to use destination GDP shares within year, but students must match the weights used in the Post-Soviet replication if the manuscript specifies them.
+
+```python
+def weighted_mean_by_group(data, variable, group, weight):
+    weighted_sum = (data[variable] * data[weight]).groupby(data[group]).transform("sum")
+    weight_sum = data[weight].groupby(data[group]).transform("sum")
+    return weighted_sum / weight_sum
+
+def bvw_transform(
+    data,
+    variable,
+    exporter="iso3_o",
+    importer="iso3_d",
+    weight="gdp_d",
+):
+    exporter_wmean = weighted_mean_by_group(data, variable, exporter, weight)
+    importer_wmean = weighted_mean_by_group(data, variable, importer, weight)
+    overall_wmean = (data[variable] * data[weight]).sum() / data[weight].sum()
+    return data[variable] - exporter_wmean - importer_wmean + overall_wmean
+
+for variable in [
+    "log_distw",
+    "comlang_off",
+    "contig",
+    "wto_joint",
+    "EU_joint",
+    "EAEU_joint",
+]:
+    bv_df[f"{variable}_bvw"] = bvw_transform(bv_df, variable, weight="gdp_d")
+```
+
+```python
+bvw_formula = (
+    "log_flow ~ log_gdp_o + log_gdp_d + "
+    "log_distw_bvw + comlang_off_bvw + contig_bvw + "
+    "wto_joint_bvw + EU_joint_bvw + EAEU_joint_bvw + C(year)"
+)
+
+bvw_py = smf.ols(bvw_formula, data=bv_df).fit(cov_type="HC1")
+```
+
+## Interpretation
+
+BVU and BVW coefficients should be interpreted as associations between transformed trade-cost variables and log trade. They are not identical to pooled OLS coefficients because the variables have been adjusted to approximate multilateral resistance.
+
+For institutional variables:
+
+$$
+100 \times \left(\exp(\lambda) - 1\right)
+$$
+
+converts a transformed dummy coefficient into an approximate percent difference. The interpretation must state that the coefficient is based on the Bonus Vetus transformation.
+
+## Replication checks
+
+Students should record:
+
+- exact weights used in BVW;
+- whether weights vary by year;
+- whether transformations are computed by year or over the full panel;
+- whether R and Python transformations produce the same columns;
+- whether the estimation sample matches the OLS sample.
+
+## Research output
+
+Prepare BVU and BVW table shells, including a note that no results should be interpreted until the transformations match the Post-Soviet replication design.

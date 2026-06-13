@@ -1,0 +1,141 @@
+---
+title: "Final Workshop"
+---
+
+## Introduction
+
+The final workshop turns the course project into a complete research package. Students submit a paper, notebook, tables, figures, presentation, and revision memo. The package should allow another researcher to understand the question, reproduce the results, and evaluate the interpretation.
+
+## Final paper checklist
+
+The paper should include:
+
+- clear research question;
+- policy motivation;
+- region and sample definition;
+- data sources;
+- variable definitions;
+- descriptive statistics;
+- gravity model;
+- baseline results;
+- fixed-effects results;
+- PPML results;
+- robustness checks;
+- cautious policy interpretation;
+- limitations.
+
+The paper should distinguish replication evidence from the student's original extension.
+
+## Reproducibility checklist
+
+Before submission, verify:
+
+- the notebook runs from start to finish;
+- all tables in the paper are produced by the notebook;
+- all figures are produced by the notebook;
+- file paths are relative and portable;
+- required packages are listed;
+- sample restrictions are documented;
+- missing values and zero flows are reported;
+- fixed effects are stated clearly;
+- standard errors are identified;
+- convergence status is checked for nonlinear models;
+- replication notes are included.
+
+Reproducibility is part of the grade because it is part of research quality.
+
+## Minimum tables
+
+The final paper should include at least:
+
+1. descriptive statistics;
+2. sample or country coverage table;
+3. main regression table;
+4. robustness table.
+
+Additional tables may include variable definitions, institutional coding, correlation matrix, or coefficient comparison with the replication paper.
+
+## Minimum figures
+
+The final paper should include at least:
+
+1. trade distribution;
+2. top exporters/importers;
+3. selected coefficient comparison or trade network.
+
+Figures should clarify the research argument. Do not include decorative figures.
+
+## Minimum model set
+
+The empirical section must include:
+
+1. descriptive statistics;
+2. baseline OLS;
+3. fixed-effects OLS;
+4. PPML;
+5. at least one robustness check.
+
+The robustness check can be an alternative estimator, alternative sample, alternative fixed-effect structure, or alternative trade-flow measure. It must be motivated in the text.
+
+## Presentation structure
+
+A clear conference-style presentation should follow this structure:
+
+1. research question;
+2. why the region matters;
+3. data and sample;
+4. gravity specification;
+5. main result;
+6. robustness result;
+7. policy interpretation;
+8. limitation and next step.
+
+Slides should not reproduce the entire paper. They should guide the audience through the argument.
+
+## Discussant and reviewer response memo
+
+Students should prepare a short response memo after receiving feedback.
+
+| Comment type | Response strategy |
+|---|---|
+| Data question | Clarify source, sample, variable construction, or missing values |
+| Model question | Explain estimator, fixed effects, and standard errors |
+| Interpretation question | Adjust claims to match the research design |
+| Robustness request | Add a justified specification or explain why it is not appropriate |
+| Writing issue | Revise structure, definitions, or table notes |
+
+The memo should state what changed, what did not change, and why.
+
+## Revision workflow
+
+Use a controlled revision process:
+
+1. list all comments;
+2. group comments by data, methods, results, and writing;
+3. decide which changes require new code;
+4. rerun the notebook;
+5. update tables and figures;
+6. revise the paper text;
+7. write a response memo;
+8. check that the final PDF and notebook agree.
+
+Do not revise the paper manually without rerunning the notebook when empirical results change.
+
+## Final submission package
+
+The final submission package should include:
+
+- research paper PDF;
+- reproducible Python notebook;
+- cleaned dataset or documented data access instructions;
+- generated tables;
+- generated figures;
+- presentation slides;
+- revision or response memo;
+- replication notes.
+
+The package should be organized so another researcher can follow the empirical path from data to conclusion.
+
+## Beyond the course
+
+The final project can become a thesis chapter, conference paper, working paper, or journal submission. The next step is not to add more regressions automatically. The next step is to sharpen the research question, improve the data documentation, and make the interpretation credible.

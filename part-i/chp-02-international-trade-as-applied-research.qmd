@@ -1,0 +1,87 @@
+---
+title: "Trade Research"
+---
+
+## Introduction
+
+Applied trade research begins with a policy question, but a gravity paper requires that question to become measurable. The researcher must define the trade outcome, the countries, the years, the institutional variable, the comparison group, and the estimator.
+
+The Post-Soviet project asks how institutional alignment is associated with bilateral trade among fifteen post-Soviet economies. The institutional variables are $wto\_joint$, $EU\_joint$, and $EAEU\_joint$.
+
+## From policy concepts to variables
+
+Institutions are broad concepts. Gravity models require specific indicators.
+
+$wto\_joint$ equals 1 when both countries in a dyad are WTO members in year $t$. It measures shared multilateral trade-system membership.
+
+$EU\_joint$ equals 1 when both countries are EU members in year $t$. In the Post-Soviet sample, this mainly captures Baltic EU membership.
+
+$EAEU\_joint$ equals 1 when both countries are EAEU members in year $t$. It captures Eurasian regional institutional alignment after 2015.
+
+These variables do not prove implementation quality or causality. They measure shared institutional status.
+
+## Why regional cases matter
+
+Regional gravity papers are useful because institutional history, geography, and trade costs differ across regions. A result from the Post-Soviet sample may not generalize directly to Africa, GCC, MENA, COMESA, ECOWAS, ASEAN, or the Western Balkans.
+
+Students use the Post-Soviet paper as a template, then adapt the structure to another region. The adaptation requires new institutional variables, a justified country sample, and clear policy motivation.
+
+## Policy question map
+
+| Policy question | Gravity variable | Possible interpretation |
+|---|---|---|
+| Does shared WTO membership matter for intra-regional trade? | $wto\_joint$ | Association between common multilateral membership and bilateral trade |
+| Is deep regional integration linked to higher trade? | $EU\_joint$ or regional equivalent | Association between shared deep-integration status and trade |
+| Does Eurasian regional integration matter after 2015? | $EAEU\_joint$ | Association between joint EAEU membership and trade |
+| Do neighboring countries trade more? | $contig$ | Conditional association between common border and trade |
+| Does language reduce trade costs? | $comlang\_off$ | Conditional association between common official language and trade |
+| Does distance still matter in a historically connected region? | $distw$ | Distance elasticity or trade-cost association |
+
+The table turns broad policy language into variables that can be estimated.
+
+## Adapting the template
+
+Students can adapt the Post-Soviet design to other regions:
+
+- Africa: AfCFTA, WTO membership, regional economic communities;
+- GCC: customs union, energy trade, logistics, common institutions;
+- MENA: regional agreements, border frictions, food trade;
+- COMESA, ECOWAS, or EAC: regional economic community membership;
+- ASEAN: regional integration and production networks;
+- Western Balkans: EU integration, CEFTA, WTO accession.
+
+The structure remains the same:
+
+```text
+region -> policy question -> gravity variables -> dataset -> estimator sequence -> interpretation
+```
+
+## Research question discipline
+
+A good research question is narrow enough to estimate and important enough to motivate.
+
+Weak question:
+
+> Does trade policy matter?
+
+Better question:
+
+> Is joint EU membership associated with higher bilateral trade among post-Soviet economies after controlling for economic size, distance, and exporter/importer heterogeneity?
+
+The better question identifies the institution, outcome, region, controls, and empirical comparison.
+
+## From replication to extension
+
+Replication teaches students what must be specified before running a model:
+
+- country sample;
+- year range;
+- dependent variable;
+- policy indicators;
+- control variables;
+- estimator sequence;
+- fixed effects;
+- standard errors;
+- interpretation limits.
+
+An extension should change the research question or region, not the standards of evidence.

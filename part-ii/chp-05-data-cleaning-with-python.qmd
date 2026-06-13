@@ -1,0 +1,222 @@
+---
+title: "Dataset Building"
+---
+
+## Introduction
+
+This chapter shows how to rebuild and validate the Post-Soviet gravity panel in Python. The goal is not only to create a cleaned CSV file. The goal is to make every sample restriction and variable transformation reproducible.
+
+The reference dataset is:
+
+```text
+data/ExSoviet_balanced_clean.csv
+```
+
+The executed replication confirms 5,253 observations, 20 columns, 15 exporters, 15 importers, years 1992-2020, zero zero-flow observations, and 5,253 positive-flow observations.
+
+## Reproducible cleaning logic
+
+A replication-ready gravity dataset should make these decisions explicit:
+
+- which countries are included;
+- whether dyads are directed or undirected;
+- which years are included;
+- how trade flows are measured;
+- how institutional variables are coded;
+- how logs are constructed;
+- how zeros and missing values are handled.
+
+The Post-Soviet project uses directed dyads. Exporter-importer direction matters.
+
+## Load the dataset
+
+```python
+import pandas as pd
+import numpy as np
+
+path = "data/ExSoviet_balanced_clean.csv"
+df = pd.read_csv(path)
+
+print(df.shape)
+print(df.columns.tolist())
+df.head()
+```
+
+## Define the region
+
+The region contains fifteen post-Soviet economies.
+
+```python
+post_soviet_countries = [
+    "Armenia",
+    "Azerbaijan",
+    "Belarus",
+    "Estonia",
+    "Georgia",
+    "Kazakhstan",
+    "Kyrgyzstan",
+    "Latvia",
+    "Lithuania",
+    "Moldova",
+    "Russia",
+    "Tajikistan",
+    "Turkmenistan",
+    "Ukraine",
+    "Uzbekistan",
+]
+```
+
+The cleaned course dataset already contains the Post-Soviet sample. If students rebuild the panel from raw CEPII files, they should filter both exporter and importer to the same country list before estimation.
+
+## Validate required variables
+
+The replication cannot proceed unless the required variables are present.
+
+```python
+required = [
+    "flow",
+    "gdp_o",
+    "gdp_d",
+    "distw",
+    "comlang_off",
+    "contig",
+    "wto_joint",
+    "EU_joint",
+    "EAEU_joint",
+    "year",
+    "iso_o",
+    "iso_d",
+]
+
+missing = [column for column in required if column not in df.columns]
+
+if missing:
+    raise ValueError(f"Missing required variables: {missing}")
+```
+
+Validation should happen before any regression code. Otherwise, a model may run on the wrong column or after silent row deletion.
+
+## Check directed dyads
+
+Directed dyads require exporter and importer identifiers.
+
+```python
+df["iso_o"] = df["iso_o"].astype(str)
+df["iso_d"] = df["iso_d"].astype(str)
+
+df["pair_id"] = df["iso_o"] + "_" + df["iso_d"]
+
+dyad_summary = {
+    "rows": len(df),
+    "exporters": df["iso_o"].nunique(),
+    "importers": df["iso_d"].nunique(),
+    "directed_pairs": df["pair_id"].nunique(),
+    "years": df["year"].nunique(),
+}
+
+dyad_summary
+```
+
+Do not collapse directed dyads unless the research question explicitly concerns undirected bilateral relationships.
+
+## Prepare numeric variables
+
+```python
+numeric_columns = [
+    "flow",
+    "gdp_o",
+    "gdp_d",
+    "distw",
+    "comlang_off",
+    "contig",
+    "wto_joint",
+    "EU_joint",
+    "EAEU_joint",
+    "year",
+]
+
+for column in numeric_columns:
+    df[column] = pd.to_numeric(df[column], errors="coerce")
+```
+
+Converting to numeric makes missing values visible. It also prevents formulas from treating a numeric variable as text.
+
+## Construct logs carefully
+
+Do not use `log(flow + 1)` as the default. It changes the dependent variable and makes the estimates harder to compare with the manuscript.
+
+```python
+df["log_flow"] = np.where(df["flow"] > 0, np.log(df["flow"]), np.nan)
+df["log_gdp_o"] = np.where(df["gdp_o"] > 0, np.log(df["gdp_o"]), np.nan)
+df["log_gdp_d"] = np.where(df["gdp_d"] > 0, np.log(df["gdp_d"]), np.nan)
+df["log_distw"] = np.where(df["distw"] > 0, np.log(df["distw"]), np.nan)
+
+df["log_trade_intensity"] = np.where(
+    (df["flow"] > 0) & (df["gdp_o"] > 0) & (df["gdp_d"] > 0),
+    np.log(df["flow"]) - np.log(df["gdp_o"]) - np.log(df["gdp_d"]),
+    np.nan,
+)
+```
+
+`log_flow` is defined only for positive trade. PPML uses `flow` in levels and does not require logging the dependent variable.
+
+## Create fixed-effect identifiers
+
+Fixed-effects and structural gravity models require reproducible identifiers.
+
+```python
+df["pair_id"] = df["iso_o"] + "_" + df["iso_d"]
+df["exporter_year"] = df["iso_o"] + "_" + df["year"].astype(str)
+df["importer_year"] = df["iso_d"] + "_" + df["year"].astype(str)
+```
+
+`pair_id` is used for pair-level clustering and pair fixed effects. `exporter_year` and `importer_year` are used in structural PPML specifications.
+
+## Check positive values and zeros
+
+```python
+checks = {
+    "rows": len(df),
+    "zero_flow_observations": int((df["flow"] == 0).sum()),
+    "positive_flow_observations": int(
+        (
+            (df["flow"] > 0)
+            & (df["distw"] > 0)
+            & (df["gdp_o"] > 0)
+            & (df["gdp_d"] > 0)
+        ).sum()
+    ),
+    "missing_required_values": int(df[required].isna().sum().sum()),
+}
+
+checks
+```
+
+The course dataset has zero zero-flow observations. This means the zero-inclusive PPML exercises in the teaching dataset cannot fully reproduce the manuscript's broader zero-inclusive tables.
+
+## Save the cleaned file
+
+If students rebuild the dataset from a raw CEPII extract, they should save the cleaned output with a clear name.
+
+```python
+output_path = "data/ExSoviet_balanced_clean.csv"
+df.to_csv(output_path, index=False)
+```
+
+Do not overwrite a raw source file. Keep raw, intermediate, and cleaned files separate in a full replication project.
+
+## Cleaning checklist
+
+A cleaned gravity panel should contain:
+
+- exporter and importer identifiers: `iso_o`, `iso_d`;
+- year;
+- trade flow: `flow`;
+- GDP variables: `gdp_o`, `gdp_d`;
+- distance: `distw`;
+- bilateral controls: `comlang_off`, `contig`;
+- institutional indicators: `wto_joint`, `EU_joint`, `EAEU_joint`;
+- log variables;
+- `pair_id`;
+- `exporter_year` and `importer_year`;
+- documented zero-flow treatment.

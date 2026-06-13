@@ -1,0 +1,207 @@
+:root {
+  --reader-text-scale: 1;
+  --reader-bg: inherit;
+  --reader-surface: #ffffff;
+  --reader-surface-muted: #f8f9fa;
+  --reader-text: inherit;
+  --reader-heading: var(--bs-heading-color, #1f2933);
+  --reader-link: #0b5ed7;
+  --reader-border: rgba(31, 41, 51, 0.18);
+  --reader-code-bg: #f6f8fa;
+  --reader-code-text: #1f2328;
+  --reader-focus: #0d6efd;
+}
+
+:root[data-reader-size="large"] {
+  --reader-text-scale: 1.25;
+}
+
+:root[data-reader-size="xlarge"] {
+  --reader-text-scale: 1.5;
+}
+
+:root[data-reader-style="sepia"] {
+  --reader-bg: #f7f0e3;
+  --reader-surface: #fff8eb;
+  --reader-surface-muted: #f0e5d3;
+  --reader-text: #372d20;
+  --reader-heading: #49351f;
+  --reader-link: #8a4d12;
+  --reader-border: #d8c4a5;
+  --reader-code-bg: #eee0c8;
+  --reader-code-text: #2d261d;
+  --reader-focus: #9b5b18;
+}
+
+:root[data-reader-style="dark"] {
+  --reader-bg: #111418;
+  --reader-surface: #191e24;
+  --reader-surface-muted: #222832;
+  --reader-text: #e8ecef;
+  --reader-heading: #f2f5f7;
+  --reader-link: #8fc7ff;
+  --reader-border: #3a4652;
+  --reader-code-bg: #20262e;
+  --reader-code-text: #f0f3f6;
+  --reader-focus: #9ed0ff;
+}
+
+body {
+  background: var(--reader-bg);
+  color: var(--reader-text);
+}
+
+:root[data-reader-style="sepia"] body,
+:root[data-reader-style="dark"] body,
+:root[data-reader-style="sepia"] #quarto-content,
+:root[data-reader-style="dark"] #quarto-content,
+:root[data-reader-style="sepia"] main.content,
+:root[data-reader-style="dark"] main.content {
+  background: var(--reader-bg);
+  color: var(--reader-text);
+}
+
+:root[data-reader-style="sepia"] main.content h1,
+:root[data-reader-style="sepia"] main.content h2,
+:root[data-reader-style="sepia"] main.content h3,
+:root[data-reader-style="sepia"] main.content h4,
+:root[data-reader-style="sepia"] main.content h5,
+:root[data-reader-style="sepia"] main.content h6,
+:root[data-reader-style="dark"] main.content h1,
+:root[data-reader-style="dark"] main.content h2,
+:root[data-reader-style="dark"] main.content h3,
+:root[data-reader-style="dark"] main.content h4,
+:root[data-reader-style="dark"] main.content h5,
+:root[data-reader-style="dark"] main.content h6 {
+  color: var(--reader-heading);
+}
+
+main.content :where(p, li, dd, dt, blockquote, figcaption, .callout-body, mjx-container) {
+  font-size: calc(1rem * var(--reader-text-scale));
+  line-height: 1.65;
+}
+
+main.content :where(table, .table) {
+  font-size: calc(0.95rem * var(--reader-text-scale));
+}
+
+main.content :where(.btn, button, .page-navigation, .code-tools-button, .cell-code, pre, pre code) {
+  font-size: revert;
+}
+
+:root[data-reader-style="sepia"] main.content a,
+:root[data-reader-style="dark"] main.content a {
+  color: var(--reader-link);
+}
+
+:root[data-reader-style="sepia"] main.content :where(table, .table),
+:root[data-reader-style="dark"] main.content :where(table, .table) {
+  color: var(--reader-text);
+  border-color: var(--reader-border);
+}
+
+:root[data-reader-style="sepia"] main.content :where(th, td),
+:root[data-reader-style="dark"] main.content :where(th, td) {
+  border-color: var(--reader-border);
+}
+
+:root[data-reader-style="sepia"] main.content :where(code:not(pre code), pre, pre code, .sourceCode),
+:root[data-reader-style="dark"] main.content :where(code:not(pre code), pre, pre code, .sourceCode) {
+  background-color: var(--reader-code-bg);
+  color: var(--reader-code-text);
+}
+
+:root[data-reader-style="sepia"] main.content :where(.callout, .cell-output, blockquote),
+:root[data-reader-style="dark"] main.content :where(.callout, .cell-output, blockquote) {
+  background-color: var(--reader-surface);
+  border-color: var(--reader-border);
+  color: var(--reader-text);
+}
+
+:root[data-reader-style="sepia"] main.content :where(.callout-title-container, .callout-title),
+:root[data-reader-style="dark"] main.content :where(.callout-title-container, .callout-title) {
+  color: var(--reader-heading);
+}
+
+:root[data-reader-style="sepia"] main.content :where(svg, mjx-container),
+:root[data-reader-style="dark"] main.content :where(svg, mjx-container) {
+  color: var(--reader-text);
+}
+
+.reader-tools {
+  position: fixed;
+  top: 4.75rem;
+  right: 1rem;
+  z-index: 1050;
+  font-family: var(--bs-body-font-family, system-ui, sans-serif);
+}
+
+.reader-tools__toggle {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--reader-border);
+  border-radius: 50%;
+  background: var(--reader-surface);
+  color: var(--reader-heading);
+  box-shadow: 0 0.35rem 1.4rem rgba(15, 23, 42, 0.18);
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.reader-tools__menu {
+  position: absolute;
+  top: 3rem;
+  right: 0;
+  width: 12rem;
+  padding: 0.75rem;
+  border: 1px solid var(--reader-border);
+  border-radius: 8px;
+  background: var(--reader-surface);
+  color: var(--reader-text);
+  box-shadow: 0 0.75rem 2rem rgba(15, 23, 42, 0.22);
+}
+
+.reader-tools__group + .reader-tools__group {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--reader-border);
+}
+
+.reader-tools__label {
+  margin-bottom: 0.35rem;
+  color: var(--reader-heading);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.reader-tools__menu button {
+  display: block;
+  width: 100%;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.reader-tools__menu button:hover,
+.reader-tools__menu button[aria-pressed="true"] {
+  border-color: var(--reader-border);
+  background: var(--reader-surface-muted);
+}
+
+.reader-tools button:focus-visible {
+  outline: 3px solid var(--reader-focus);
+  outline-offset: 2px;
+}
+
+@media (max-width: 767.98px) {
+  .reader-tools {
+    top: 4.25rem;
+    right: 0.75rem;
+  }
+}

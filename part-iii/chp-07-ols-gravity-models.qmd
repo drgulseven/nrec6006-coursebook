@@ -1,0 +1,197 @@
+---
+title: "OLS Gravity"
+---
+
+## Purpose
+
+This chapter develops the baseline log-linear gravity model used as the first econometric step in the Post-Soviet replication. It explains the theory, the R workflow, the Python workflow, and the interpretation of coefficients.
+
+## Post-Soviet variables
+
+The running model uses:
+
+| Role | Variable |
+|---|---|
+| Trade flow | `flow` |
+| Exporter GDP | `gdp_o` |
+| Importer GDP | `gdp_d` |
+| Weighted distance | `distw` |
+| Common official language | `comlang_off` |
+| Contiguity | `contig` |
+| Joint WTO status | `wto_joint` |
+| Joint EU status | `EU_joint` |
+| Joint EAEU status | `EAEU_joint` |
+| Year | `year` |
+
+No numerical result should be reported until the replication dataset is loaded and the model is estimated.
+
+## Theory
+
+The gravity model starts from a stable empirical regularity: larger economies trade more, and more distant economies trade less. In the Post-Soviet case, the model asks whether institutional relationships such as WTO, EU, or EAEU joint status are associated with bilateral trade after controlling for economic mass and basic trade costs.
+
+The multiplicative gravity idea is:
+
+$$
+Flow_{ijt}
+= A
+GDP_{it}^{\beta_1}
+GDP_{jt}^{\beta_2}
+Distw_{ij}^{\beta_3}
+\exp(\gamma Z_{ijt})
+\eta_{ijt}
+$$
+
+where $Z_{ijt}$ includes `comlang_off`, `contig`, `wto_joint`, `EU_joint`, and `EAEU_joint`.
+
+## Equation
+
+The baseline log-linear model is:
+
+$$
+\begin{aligned}
+\log(flow_{ijt})
+&= \beta_0
++ \beta_1 \log(gdp\_o_{it})
++ \beta_2 \log(gdp\_d_{jt}) \\
+&\quad
++ \beta_3 \log(distw_{ij})
++ \gamma_1 comlang\_off_{ij}
++ \gamma_2 contig_{ij} \\
+&\quad
++ \gamma_3 wto\_joint_{ijt}
++ \gamma_4 EU\_joint_{ijt}
++ \gamma_5 EAEU\_joint_{ijt} \\
+&\quad
++ \delta_t
++ \varepsilon_{ijt}
+\end{aligned}
+$$
+
+The year effect $\delta_t$ controls for common shocks in a given year.
+
+## Why OLS exists
+
+OLS is the simplest way to estimate the log-linear gravity equation. It is useful for teaching, replication diagnostics, and comparison with older gravity workflows. It also gives direct elasticity interpretations for logged variables.
+
+## Advantages
+
+- Transparent and easy to reproduce.
+- Useful for checking signs and magnitudes.
+- Coefficients on logged variables are elasticities.
+- Dummy variables can be converted into approximate percent differences.
+- R and Python workflows are easy to compare.
+
+## Limitations
+
+- `log(flow)` is undefined when `flow == 0`.
+- Dropping zero flows can change the sample.
+- Log-linear OLS can be biased under heteroskedasticity.
+- OLS is not usually the preferred final estimator for modern gravity when zeros and multiplicative errors matter.
+
+::: {.callout-warning title="Zero trade flows"}
+OLS with `log(flow)` uses positive trade flows only. Do not silently drop zero flows without reporting how many observations are removed.
+:::
+
+## R implementation
+
+The R workflow usually creates logged variables, filters positive trade flows, and estimates a formula model.
+
+```r
+library(dplyr)
+library(fixest)
+
+df <- read.csv("data/gravity_clean.csv")
+
+ols_df <- df %>%
+  filter(flow > 0) %>%
+  mutate(
+    log_flow = log(flow),
+    log_gdp_o = log(gdp_o),
+    log_gdp_d = log(gdp_d),
+    log_distw = log(distw)
+  )
+
+ols_r <- feols(
+  log_flow ~ log_gdp_o + log_gdp_d + log_distw +
+    comlang_off + contig + wto_joint + EU_joint + EAEU_joint |
+    year,
+  data = ols_df,
+  vcov = "hetero"
+)
+
+summary(ols_r)
+```
+
+The R code above is a workflow template. Students should match the exact sample and variable definitions used in the Post-Soviet replication before comparing estimates.
+
+## Python implementation
+
+The Python workflow uses the same sample logic and model variables.
+
+```python
+import numpy as np
+import pandas as pd
+import statsmodels.formula.api as smf
+```
+
+```python
+df = pd.read_csv("data/gravity_clean.csv")
+
+ols_df = df.loc[df["flow"] > 0].copy()
+ols_df["log_flow"] = np.log(ols_df["flow"])
+ols_df["log_gdp_o"] = np.log(ols_df["gdp_o"])
+ols_df["log_gdp_d"] = np.log(ols_df["gdp_d"])
+ols_df["log_distw"] = np.log(ols_df["distw"])
+```
+
+```python
+ols_formula = (
+    "log_flow ~ log_gdp_o + log_gdp_d + log_distw + "
+    "comlang_off + contig + wto_joint + EU_joint + EAEU_joint + C(year)"
+)
+
+ols_py = smf.ols(ols_formula, data=ols_df).fit(cov_type="HC1")
+
+print(ols_py.summary())
+```
+
+## Coefficient interpretation
+
+For logged continuous variables:
+
+- `log_gdp_o`: exporter GDP elasticity.
+- `log_gdp_d`: importer GDP elasticity.
+- `log_distw`: distance elasticity.
+
+If the coefficient on `log_distw` is $\beta_3$, a 1 percent increase in weighted distance is associated with approximately $\beta_3$ percent change in trade, conditional on the model.
+
+For dummy variables such as `wto_joint`, `EU_joint`, and `EAEU_joint`, use:
+
+$$
+100 \times \left(\exp(\gamma) - 1\right)
+$$
+
+```python
+for variable in ["wto_joint", "EU_joint", "EAEU_joint", "comlang_off", "contig"]:
+    if variable in ols_py.params.index:
+        beta = ols_py.params[variable]
+        percent = 100 * (np.exp(beta) - 1)
+        print(variable, percent)
+```
+
+Do not interpret these transformed coefficients as causal effects unless the research design supports a causal claim.
+
+## Replication checks
+
+Before moving to fixed effects, record:
+
+- number of rows in the raw dataset;
+- number of rows with `flow > 0`;
+- variable definitions used for logs;
+- whether `year` effects are included;
+- whether robust standard errors are used;
+- whether the model matches the Post-Soviet manuscript specification.
+
+## Research output
+
+Produce an OLS replication table shell and a short note explaining the positive-flow sample, the model equation, and the interpretation of the institutional coefficients.

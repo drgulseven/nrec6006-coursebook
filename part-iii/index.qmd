@@ -1,0 +1,14 @@
+# Part III: From R Gravity Models to Python {.unnumbered}
+
+Part III is the econometrics core of the course. The running case is the Post-Soviet gravity project: bilateral trade flows are modeled using `flow`, economic mass is measured with `gdp_o` and `gdp_d`, trade costs are represented by `distw`, `comlang_off`, and `contig`, and institutional variables include `wto_joint`, `EU_joint`, and `EAEU_joint`.
+
+The module has two goals. First, students learn why each gravity estimator exists. Second, they learn how to translate R-style gravity workflows into transparent Python implementations that can reproduce and extend the Post-Soviet paper without fabricating results.
+
+| Chp | Topic | Main Output |
+|---|---|---|
+| [07](chp-07-ols-gravity-models.qmd) | OLS gravity | OLS replication workflow |
+| [08](chp-08-fixed-effects-and-structural-gravity.qmd) | Fixed effects | Structural gravity translation |
+| [09](chp-09-bonus-vetus-gravity-models.qmd) | Bonus Vetus | BVU/BVW implementation plan |
+| [10](chp-10-ppml-gpml-nbpml-zero-inclusive-estimation.qmd) | PPML | PML estimator comparison |
+
+This part contributes to the final publication-ready paper by turning the replication exercise into an econometric toolkit. Students should leave Part III able to explain, estimate, and interpret each model family before moving to replication tables in Part IV.

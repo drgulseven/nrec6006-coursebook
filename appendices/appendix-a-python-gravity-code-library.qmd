@@ -1,0 +1,613 @@
+---
+title: "Python Code"
+---
+
+## Introduction
+
+This appendix is the Python code library for NREC6006. It provides reusable functions and workflow blocks for the Post-Soviet gravity replication project and for student regional gravity papers.
+
+The functions use the course variable names:
+
+`flow`, `gdp_o`, `gdp_d`, `distw`, `comlang_off`, `contig`, `wto_joint`, `EU_joint`, `EAEU_joint`, `year`, `iso_o`, and `iso_d`.
+
+The code is designed for notebooks. Students should copy functions into a project notebook, run them on the cleaned dataset, and inspect every sample change before reporting results.
+
+## Standard imports
+
+These imports cover the core workflow: data management, numerical operations, regression models, and basic plotting.
+
+```python
+import pandas as pd
+import numpy as np
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+import matplotlib.pyplot as plt
+```
+
+## Load and inspect data
+
+Use this function at the start of a notebook. It reads the CSV file, prints the shape, displays the first rows, and lists available columns.
+
+```python
+def load_gravity_data(path):
+    df = pd.read_csv(path)
+
+    print(f"Rows: {df.shape[0]:,}")
+    print(f"Columns: {df.shape[1]:,}")
+    print("\nColumn names:")
+    print(list(df.columns))
+    print("\nFirst rows:")
+    print(df.head())
+
+    return df
+```
+
+## Validate required columns
+
+Replication work fails quickly when variable names differ across files. This function stops the workflow if a required Post-Soviet project variable is missing.
+
+```python
+def validate_gravity_columns(df):
+    required = [
+        "flow",
+        "gdp_o",
+        "gdp_d",
+        "distw",
+        "comlang_off",
+        "contig",
+        "wto_joint",
+        "EU_joint",
+        "EAEU_joint",
+        "year",
+        "iso_o",
+        "iso_d",
+    ]
+
+    missing = [column for column in required if column not in df.columns]
+
+    if missing:
+        raise ValueError(
+            "Missing required gravity columns: "
+            + ", ".join(missing)
+            + ". Check variable names before estimation."
+        )
+
+    print("All required gravity columns are present.")
+```
+
+## Prepare gravity variables
+
+This function creates the standard variables used across the course. It handles zeros carefully: `log_flow` is only defined for positive trade flows, and the default code does not use `log(flow + 1)`.
+
+`log(flow + 1)` changes the model because it compresses small flows and assigns an arbitrary transformation to zeros. Use it only when a research design explicitly justifies that choice.
+
+```python
+def prepare_gravity_variables(df):
+    data = df.copy()
+
+    numeric_columns = [
+        "flow",
+        "gdp_o",
+        "gdp_d",
+        "distw",
+        "comlang_off",
+        "contig",
+        "wto_joint",
+        "EU_joint",
+        "EAEU_joint",
+        "year",
+    ]
+
+    for column in numeric_columns:
+        data[column] = pd.to_numeric(data[column], errors="coerce")
+
+    data["iso_o"] = data["iso_o"].astype(str)
+    data["iso_d"] = data["iso_d"].astype(str)
+    data["year"] = data["year"].astype("Int64")
+
+    data["pair_id"] = data["iso_o"] + "_" + data["iso_d"]
+
+    data["log_distw"] = np.where(data["distw"] > 0, np.log(data["distw"]), np.nan)
+    data["log_gdp_o"] = np.where(data["gdp_o"] > 0, np.log(data["gdp_o"]), np.nan)
+    data["log_gdp_d"] = np.where(data["gdp_d"] > 0, np.log(data["gdp_d"]), np.nan)
+    data["log_flow"] = np.where(data["flow"] > 0, np.log(data["flow"]), np.nan)
+
+    gdp_product = data["gdp_o"] * data["gdp_d"]
+    data["trade_intensity"] = np.where(gdp_product > 0, data["flow"] / gdp_product, np.nan)
+    data["log_trade_intensity"] = np.where(
+        data["trade_intensity"] > 0,
+        np.log(data["trade_intensity"]),
+        np.nan,
+    )
+
+    return data
+```
+
+## Create positive-flow sample
+
+Log-linear OLS, GPML, and several transformed models require positive trade, positive distance, and positive GDP values.
+
+```python
+def positive_flow_sample(df):
+    sample = df.loc[
+        (df["flow"] > 0)
+        & (df["distw"] > 0)
+        & (df["gdp_o"] > 0)
+        & (df["gdp_d"] > 0)
+    ].copy()
+
+    print(f"Positive-flow sample rows: {sample.shape[0]:,}")
+    return sample
+```
+
+## Baseline OLS function
+
+The baseline log-linear gravity model estimates trade elasticities using positive trade flows only. Robust standard errors are used for reporting.
+
+```python
+def run_ols_gravity(df):
+    formula = (
+        "log_flow ~ log_gdp_o + log_gdp_d + log_distw + "
+        "comlang_off + contig + wto_joint + EU_joint + EAEU_joint"
+    )
+
+    model = smf.ols(formula=formula, data=df).fit(cov_type="HC1")
+    return model
+```
+
+## Fixed-effects OLS function
+
+This model adds exporter, importer, and year fixed effects. It is transparent and useful for teaching, although explicit dummy expansion may become slow in large panels.
+
+```python
+def run_fe_ols_gravity(df):
+    formula = (
+        "log_flow ~ log_distw + comlang_off + contig + "
+        "wto_joint + EU_joint + EAEU_joint + "
+        "C(iso_o) + C(iso_d) + C(year)"
+    )
+
+    model = smf.ols(formula=formula, data=df).fit(cov_type="HC1")
+    return model
+```
+
+## Pair fixed-effects OLS function
+
+Pair fixed effects control for time-invariant bilateral characteristics. Distance, contiguity, and common language are absorbed because they do not vary within a country pair over time.
+
+```python
+def run_pair_fe_ols(df):
+    formula = (
+        "log_flow ~ wto_joint + EU_joint + EAEU_joint + "
+        "C(pair_id) + C(year)"
+    )
+
+    model = smf.ols(formula=formula, data=df).fit(cov_type="HC1")
+    return model
+```
+
+## Double demeaning
+
+Double demeaning removes origin and destination means from a variable. It is a useful teaching bridge between simple OLS and fixed-effects gravity.
+
+For a variable $x_{ij}$:
+
+$$
+\tilde{x}_{ij}
+= x_{ij}
+- \bar{x}_{i \cdot}
+- \bar{x}_{\cdot j}
++ \bar{x}
+$$
+
+```python
+def double_demean(df, variable, origin_col="iso_o", destination_col="iso_d"):
+    overall_mean = df[variable].mean()
+    origin_mean = df.groupby(origin_col)[variable].transform("mean")
+    destination_mean = df.groupby(destination_col)[variable].transform("mean")
+
+    return df[variable] - origin_mean - destination_mean + overall_mean
+```
+
+The DDM model uses transformed variables and estimates the regression without an intercept.
+
+```python
+def run_ddm_gravity(df):
+    data = df.copy()
+
+    variables = [
+        "log_flow",
+        "log_distw",
+        "comlang_off",
+        "contig",
+        "wto_joint",
+        "EU_joint",
+        "EAEU_joint",
+    ]
+
+    for variable in variables:
+        data[f"{variable}_ddm"] = double_demean(data, variable)
+
+    formula = (
+        "log_flow_ddm ~ log_distw_ddm + comlang_off_ddm + contig_ddm + "
+        "wto_joint_ddm + EU_joint_ddm + EAEU_joint_ddm - 1"
+    )
+
+    model = smf.ols(formula=formula, data=data).fit(cov_type="HC1")
+    return model
+```
+
+## BVU model
+
+This teaching version estimates a normalized gravity equation using trade intensity:
+
+$$
+\log\left(\frac{flow_{ij}}{gdp_{o,i} gdp_{d,j}}\right)
+= \log(flow_{ij}) - \log(gdp_{o,i}) - \log(gdp_{d,j})
+$$
+
+```python
+def make_bvu_variable(df):
+    data = df.copy()
+
+    valid = (data["flow"] > 0) & (data["gdp_o"] > 0) & (data["gdp_d"] > 0)
+    data["log_trade_intensity"] = np.nan
+    data.loc[valid, "log_trade_intensity"] = (
+        np.log(data.loc[valid, "flow"])
+        - np.log(data.loc[valid, "gdp_o"])
+        - np.log(data.loc[valid, "gdp_d"])
+    )
+
+    return data
+```
+
+```python
+def run_bvu_gravity(df):
+    data = make_bvu_variable(df)
+
+    formula = (
+        "log_trade_intensity ~ log_distw + comlang_off + contig + "
+        "wto_joint + EU_joint + EAEU_joint"
+    )
+
+    model = smf.ols(formula=formula, data=data).fit(cov_type="HC1")
+    return model
+```
+
+::: {.callout-warning title="BVU caution"}
+This is a teaching implementation of normalized gravity. Students should compare it carefully with exact Bonus Vetus transformations before using it in a publication replication table.
+:::
+
+## BVW helper
+
+Bonus Vetus Weighted methods use weighted transformations. The exact BVW implementation is more involved than this helper. The purpose here is to show the logic of GDP-share weighting in a transparent way.
+
+```python
+def weighted_mean_by_year(df, variable, weight):
+    data = df.copy()
+
+    numerator = (data[variable] * data[weight]).groupby(data["year"]).transform("sum")
+    denominator = data[weight].groupby(data["year"]).transform("sum")
+
+    return numerator / denominator
+```
+
+This BVW-style transformation centers `log_distw` around year-specific GDP-weighted means.
+
+```python
+def make_bvw_style_log_distw(df):
+    data = df.copy()
+
+    data["gdp_total"] = data["gdp_o"] + data["gdp_d"]
+    data["log_distw_weighted_mean"] = weighted_mean_by_year(
+        data,
+        variable="log_distw",
+        weight="gdp_total",
+    )
+    data["log_distw_bvw_style"] = data["log_distw"] - data["log_distw_weighted_mean"]
+
+    return data
+```
+
+Use this function for learning the weighting logic. Do not treat it as a complete BVW estimator without verifying the exact transformation required by the replication design.
+
+## PPML function
+
+PPML estimates the multiplicative gravity model using `flow` in levels. It can include zero trade flows as long as the explanatory variables are valid.
+
+```python
+def run_ppml_gravity(df):
+    formula = (
+        "flow ~ log_gdp_o + log_gdp_d + log_distw + "
+        "comlang_off + contig + wto_joint + EU_joint + EAEU_joint"
+    )
+
+    model = smf.glm(
+        formula=formula,
+        data=df,
+        family=sm.families.Poisson(),
+    ).fit(cov_type="HC1")
+
+    return model
+```
+
+## PPML with fixed effects
+
+This specification adds exporter, importer, and year fixed effects to PPML. It is useful for teaching but may be computationally expensive because `statsmodels` creates explicit dummy variables.
+
+```python
+def run_ppml_fe_gravity(df):
+    formula = (
+        "flow ~ log_distw + comlang_off + contig + "
+        "wto_joint + EU_joint + EAEU_joint + "
+        "C(iso_o) + C(iso_d) + C(year)"
+    )
+
+    model = smf.glm(
+        formula=formula,
+        data=df,
+        family=sm.families.Poisson(),
+    ).fit(cov_type="HC1")
+
+    return model
+```
+
+## Structural PPML with exporter-year and importer-year fixed effects
+
+Structural gravity often controls for origin-year and destination-year terms. These absorb country-year factors such as GDP, production capacity, expenditure, and multilateral resistance.
+
+Because `log_gdp_o` and `log_gdp_d` are absorbed by exporter-year and importer-year fixed effects, they are not included in the formula.
+
+```python
+def run_structural_ppml(df):
+    data = df.copy()
+
+    data["exporter_year"] = data["iso_o"].astype(str) + "_" + data["year"].astype(str)
+    data["importer_year"] = data["iso_d"].astype(str) + "_" + data["year"].astype(str)
+
+    formula = (
+        "flow ~ log_distw + comlang_off + contig + "
+        "wto_joint + EU_joint + EAEU_joint + "
+        "C(exporter_year) + C(importer_year)"
+    )
+
+    model = smf.glm(
+        formula=formula,
+        data=data,
+        family=sm.families.Poisson(),
+    ).fit(cov_type="HC1")
+
+    return model
+```
+
+For large panels, this model may be slow or memory intensive in `statsmodels`. Students should document convergence, dropped observations, and any computational limits.
+
+## GPML function
+
+GPML uses a Gamma family with a log link. It requires positive trade flows and is best treated as a robustness estimator in this course.
+
+```python
+def run_gpml_gravity(df):
+    data = df.loc[
+        (df["flow"] > 0)
+        & (df["distw"] > 0)
+        & (df["gdp_o"] > 0)
+        & (df["gdp_d"] > 0)
+    ].copy()
+
+    formula = (
+        "flow ~ log_gdp_o + log_gdp_d + log_distw + "
+        "comlang_off + contig + wto_joint + EU_joint + EAEU_joint"
+    )
+
+    model = smf.glm(
+        formula=formula,
+        data=data,
+        family=sm.families.Gamma(link=sm.families.links.Log()),
+    ).fit(cov_type="HC1")
+
+    return model
+```
+
+## NBPML function
+
+Negative-binomial PML allows a different variance structure than PPML. In gravity applications, it is usually a robustness check rather than the main estimator.
+
+```python
+def run_nbpml_gravity(df):
+    formula = (
+        "flow ~ log_gdp_o + log_gdp_d + log_distw + "
+        "comlang_off + contig + wto_joint + EU_joint + EAEU_joint"
+    )
+
+    model = smf.glm(
+        formula=formula,
+        data=df,
+        family=sm.families.NegativeBinomial(),
+    ).fit(cov_type="HC1")
+
+    return model
+```
+
+NBPML results can be sensitive to distributional assumptions and convergence behavior. Report it as supplementary evidence unless the research design gives a strong reason to foreground it.
+
+## Dummy percent effect
+
+For a dummy variable in a log or log-link model, convert the coefficient to a percent effect with:
+
+$$
+100 \times \left(\exp(\beta) - 1\right)
+$$
+
+```python
+def percent_effect(beta):
+    return 100 * (np.exp(beta) - 1)
+```
+
+## Extract model results
+
+This function extracts selected coefficients from a fitted `statsmodels` object. It reports a percent-effect column for common dummy variables.
+
+```python
+def extract_key_results(model, variables):
+    dummy_variables = {
+        "comlang_off",
+        "contig",
+        "wto_joint",
+        "EU_joint",
+        "EAEU_joint",
+        "comlang_off_ddm",
+        "contig_ddm",
+        "wto_joint_ddm",
+        "EU_joint_ddm",
+        "EAEU_joint_ddm",
+    }
+
+    rows = []
+
+    for variable in variables:
+        if variable not in model.params.index:
+            rows.append(
+                {
+                    "variable": variable,
+                    "coefficient": np.nan,
+                    "standard_error": np.nan,
+                    "p_value": np.nan,
+                    "percent_effect": np.nan,
+                }
+            )
+            continue
+
+        beta = model.params[variable]
+        percent = percent_effect(beta) if variable in dummy_variables else np.nan
+
+        rows.append(
+            {
+                "variable": variable,
+                "coefficient": beta,
+                "standard_error": model.bse[variable],
+                "p_value": model.pvalues[variable],
+                "percent_effect": percent,
+            }
+        )
+
+    return pd.DataFrame(rows)
+```
+
+## Basic robustness table
+
+Use a dictionary of fitted models to create a compact comparison table. This is a starting point for student papers, not a substitute for a fully formatted regression table.
+
+```python
+def make_robustness_table(models, key_variables):
+    rows = []
+
+    for model_name, model in models.items():
+        for variable in key_variables:
+            if variable in model.params.index:
+                rows.append(
+                    {
+                        "model": model_name,
+                        "variable": variable,
+                        "coefficient": model.params[variable],
+                        "standard_error": model.bse[variable],
+                        "p_value": model.pvalues[variable],
+                    }
+                )
+            else:
+                rows.append(
+                    {
+                        "model": model_name,
+                        "variable": variable,
+                        "coefficient": np.nan,
+                        "standard_error": np.nan,
+                        "p_value": np.nan,
+                    }
+                )
+
+    return pd.DataFrame(rows)
+```
+
+## Diagnostic checks
+
+Diagnostic checks should be run before estimation and again after sample restrictions.
+
+```python
+def zero_flow_share(df):
+    share = (df["flow"] == 0).mean()
+    print(f"Zero-flow share: {share:.3f}")
+    return share
+```
+
+```python
+def missing_summary(df):
+    summary = (
+        df.isna()
+        .sum()
+        .reset_index()
+        .rename(columns={"index": "variable", 0: "missing_count"})
+    )
+    summary["missing_share"] = summary["missing_count"] / len(df)
+    return summary.sort_values("missing_share", ascending=False)
+```
+
+```python
+def sample_summary(df):
+    summary = {
+        "rows": len(df),
+        "exporters": df["iso_o"].nunique(),
+        "importers": df["iso_d"].nunique(),
+        "pairs": df["pair_id"].nunique() if "pair_id" in df.columns else np.nan,
+        "years": df["year"].nunique(),
+        "first_year": df["year"].min(),
+        "last_year": df["year"].max(),
+        "zero_flow_share": (df["flow"] == 0).mean(),
+    }
+
+    return pd.DataFrame([summary])
+```
+
+## Minimal replication workflow
+
+This is the minimal end-to-end workflow for a replication notebook. It assumes the cleaned Post-Soviet dataset is available at the stated path.
+
+```python
+df = load_gravity_data("data/ExSoviet_balanced_clean.csv")
+validate_gravity_columns(df)
+
+df = prepare_gravity_variables(df)
+positive = positive_flow_sample(df)
+
+zero_flow_share(df)
+sample_summary(df)
+
+ols = run_ols_gravity(positive)
+fe = run_fe_ols_gravity(positive)
+ddm = run_ddm_gravity(positive)
+bvu = run_bvu_gravity(positive)
+ppml = run_ppml_gravity(df)
+ppml_fe = run_ppml_fe_gravity(df)
+
+models = {
+    "OLS": ols,
+    "FE OLS": fe,
+    "DDM": ddm,
+    "BVU": bvu,
+    "PPML": ppml,
+}
+
+table = make_robustness_table(
+    models,
+    ["log_distw", "wto_joint", "EU_joint", "EAEU_joint"],
+)
+
+table
+```
+
+## Final caution
+
+::: {.callout-warning}
+These functions are teaching-quality implementations. For publication, students must verify sample consistency, fixed effects, standard errors, convergence, exact transformation formulas, and treatment of zeros.
+:::
+
+Students should treat the library as a reproducible starting point. A final paper must document every data restriction, transformation, estimator, and robustness decision.

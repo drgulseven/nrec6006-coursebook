@@ -1,0 +1,75 @@
+project:
+  type: book
+  output-dir: _book
+  resources:
+    - assets/reader-tools.js
+
+book:
+  title: "NREC6006 - International Trade"
+  navbar:
+    left:
+      - text: "Home"
+        href: index.qmd
+      - text: "Part I"
+        href: part-i/index.qmd
+      - text: "Part II"
+        href: part-ii/index.qmd
+      - text: "Part III"
+        href: part-iii/index.qmd
+      - text: "Part IV"
+        href: part-iv/index.qmd
+      - text: "Part V"
+        href: part-v/index.qmd
+      - text: "Appendices"
+        href: appendices/index.qmd
+  chapters:
+    - index.qmd
+    - part: part-i/index.qmd
+      chapters:
+        - part-i/chp-01-course-overview.qmd
+        - part-i/chp-02-international-trade-as-applied-research.qmd
+        - part-i/chp-03-gravity-model-intuition.qmd
+    - part: part-ii/index.qmd
+      chapters:
+        - part-ii/chp-04-cepii-gravity-database.qmd
+        - part-ii/chp-05-data-cleaning-with-python.qmd
+        - part-ii/chp-06-descriptive-trade-analysis.qmd
+    - part: part-iii/index.qmd
+      chapters:
+        - part-iii/chp-07-ols-gravity-models.qmd
+        - part-iii/chp-08-fixed-effects-and-structural-gravity.qmd
+        - part-iii/chp-09-bonus-vetus-gravity-models.qmd
+        - part-iii/chp-10-ppml-gpml-nbpml-zero-inclusive-estimation.qmd
+    - part: part-iv/index.qmd
+      chapters:
+        - part-iv/chp-11-replicating-baseline-results.qmd
+        - part-iv/chp-12-institutional-effects-wto-eu-eaeu.qmd
+        - part-iv/chp-13-robustness-sensitivity-research-transparency.qmd
+    - part: part-v/index.qmd
+      chapters:
+        - part-v/chp-14-writing-region-specific-gravity-paper.qmd
+        - part-v/chp-15-final-paper-presentation-revision-workshop.qmd
+    - part: appendices/index.qmd
+      chapters: []
+  appendices:
+    - appendices/appendix-a-python-gravity-code-library.qmd
+    - appendices/appendix-b-r-to-python-translation-guide.qmd
+    - appendices/appendix-c-gravity-formula-sheet.qmd
+    - appendices/appendix-d-research-paper-template.qmd
+    - appendices/appendix-e-essential-gravity-literature.qmd
+    - appendices/appendix-f-project-rubric.qmd
+
+bibliography: references.bib
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    code-copy: true
+    code-overflow: wrap
+    highlight-style: github
+    css:
+      - styles.css
+      - assets/reader-tools.css
+    include-after-body:
+      - assets/reader-tools.html

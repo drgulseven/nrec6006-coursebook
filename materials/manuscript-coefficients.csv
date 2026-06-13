@@ -1,0 +1,65 @@
+model,variable,manuscript_beta
+Classic OLS,log_distw,-1.205
+Classic OLS,comlang_off,1.010
+Classic OLS,contig,0.644
+Classic OLS,wto_joint,-0.559
+Classic OLS,EU_joint,1.708
+Classic OLS,EAEU_joint,0.008
+Classic OLS,log_gdp_o,0.918
+Classic OLS,log_gdp_d,0.624
+FE OLS,log_distw,-1.522
+FE OLS,comlang_off,-0.315
+FE OLS,contig,-0.164
+FE OLS,wto_joint,0.859
+FE OLS,EU_joint,1.935
+FE OLS,EAEU_joint,0.529
+FE OLS,log_gdp_o,
+FE OLS,log_gdp_d,
+DDM,log_distw,-1.511
+DDM,comlang_off,-0.275
+DDM,contig,-0.134
+DDM,wto_joint,0.860
+DDM,EU_joint,1.942
+DDM,EAEU_joint,0.536
+DDM,log_gdp_o,
+DDM,log_gdp_d,
+BVU,log_distw,-1.398
+BVU,comlang_off,0.761
+BVU,contig,0.052
+BVU,wto_joint,-0.682
+BVU,EU_joint,1.541
+BVU,EAEU_joint,-0.405
+BVU,log_gdp_o,
+BVU,log_gdp_d,
+PPML,log_distw,-0.820
+PPML,comlang_off,-0.026
+PPML,contig,0.542
+PPML,wto_joint,-0.496
+PPML,EU_joint,1.370
+PPML,EAEU_joint,0.484
+PPML,log_gdp_o,0.833
+PPML,log_gdp_d,0.647
+GPML,log_distw,-1.276
+GPML,comlang_off,-0.214
+GPML,contig,-0.025
+GPML,wto_joint,0.625
+GPML,EU_joint,1.763
+GPML,EAEU_joint,0.509
+GPML,log_gdp_o,
+GPML,log_gdp_d,
+Zero-inclusive PPML,log_distw,-0.838
+Zero-inclusive PPML,comlang_off,-0.029
+Zero-inclusive PPML,contig,0.486
+Zero-inclusive PPML,wto_joint,-0.486
+Zero-inclusive PPML,EU_joint,1.425
+Zero-inclusive PPML,EAEU_joint,0.488
+Zero-inclusive PPML,log_gdp_o,0.853
+Zero-inclusive PPML,log_gdp_d,0.667
+Structural PPML,log_distw,-0.769
+Structural PPML,comlang_off,-0.179
+Structural PPML,contig,0.126
+Structural PPML,wto_joint,0.061
+Structural PPML,EU_joint,1.825
+Structural PPML,EAEU_joint,0.776
+Structural PPML,log_gdp_o,
+Structural PPML,log_gdp_d,

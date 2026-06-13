@@ -1,0 +1,272 @@
+---
+title: "Paper Template"
+---
+
+## Purpose
+
+This appendix provides a complete template for the final region-specific gravity paper. Replace placeholders with the student's own region, dataset, estimates, tables, and interpretation. Do not invent results before estimation is complete.
+
+## Title Page
+
+**Title:** `[Institutional Variable] and Bilateral Trade in [Region]: Gravity Evidence from [Years]`
+
+**Author:** `[Student Name]`
+
+**Course:** NREC6006 - International Trade
+
+**Date:** `[Submission Date]`
+
+**Replication base:** Post-Soviet gravity workflow translated to Python
+
+## Abstract
+
+Suggested length: 150-200 words.
+
+Template:
+
+> This paper studies whether `[policy or institution]` is associated with bilateral trade among `[region]` countries during `[years]`. Using a dyad-year gravity dataset built from `[data sources]`, the paper estimates baseline OLS, fixed-effects OLS, PPML, and robustness specifications. The main dependent variable is `[trade flow measure]`. The core institutional variable is `[policy variable]`. Results show that `[brief findings placeholder]`. The analysis contributes to applied trade research by linking a reproducible Python workflow to a region-specific policy question.
+
+## Keywords
+
+Use 4-6 keywords.
+
+Suggested format:
+
+`gravity model; international trade; [region]; [institution]; PPML; Python replication`
+
+## Introduction
+
+Suggested length: 800-1,000 words.
+
+The introduction should answer four questions:
+
+1. What policy or trade problem motivates the paper?
+2. What is the research question?
+3. What is the empirical contribution?
+4. What are the main findings?
+
+Suggested structure:
+
+- Paragraph 1: Regional or policy motivation.
+- Paragraph 2: Why bilateral trade is the right outcome.
+- Paragraph 3: Research question and institutional variable.
+- Paragraph 4: Data, period, and estimators.
+- Paragraph 5: Findings preview without overstating causality.
+- Paragraph 6: Roadmap of the paper.
+
+Common mistake: beginning with broad trade theory rather than the specific empirical problem.
+
+## Literature Review
+
+Suggested length: 900-1,200 words.
+
+Organize the review around the paper's design rather than listing papers one by one.
+
+Recommended subsections:
+
+- Gravity foundations and structural gravity.
+- Estimation issues: OLS, fixed effects, PPML, and zeros.
+- Regional integration and trade agreements.
+- Literature specific to `[region]` or `[policy variable]`.
+
+Each paragraph should explain how the cited literature informs the current paper.
+
+## Data Section
+
+Suggested length: 700-900 words.
+
+Report:
+
+- Data source.
+- Countries included.
+- Years covered.
+- Unit of observation.
+- Dependent variable.
+- GDP and distance variables.
+- Institutional variables.
+- Sample restrictions.
+- Missing-value handling.
+- Zero-flow treatment.
+
+Template:
+
+> The dataset is a directed dyad-year panel covering `[N]` exporters, `[N]` importers, and `[years]`. The dependent variable is `[flow variable]`. Economic size is measured using `[GDP variables]`, and bilateral trade costs are proxied by `[distance and controls]`. The main institutional variable is `[policy variable]`, coded as `[definition]`.
+
+Required data table:
+
+| Item | Value |
+|---|---:|
+| Observations | `[N]` |
+| Exporters | `[N]` |
+| Importers | `[N]` |
+| Years | `[range]` |
+| Zero-flow observations | `[N]` |
+| Positive-flow observations | `[N]` |
+
+## Methodology
+
+Suggested length: 900-1,200 words.
+
+Include the model sequence:
+
+1. Baseline OLS.
+2. Fixed-effects OLS.
+3. PPML.
+4. Robustness specification.
+
+Baseline equation:
+
+$$
+\begin{aligned}
+\log X_{ijt}
+&= \beta_0
++ \beta_1 \log GDP_{it}
++ \beta_2 \log GDP_{jt} \\
+&\quad + \beta_3 \log D_{ij}
++ \gamma Z_{ijt}
++ \varepsilon_{ijt}
+\end{aligned}
+$$
+
+PPML equation:
+
+$$
+\begin{aligned}
+E[X_{ijt} \mid Z_{ijt}]
+&= \exp\left(
+\beta_0
++ \beta_1 \log D_{ij}
++ \gamma Z_{ijt}
++ FE
+\right)
+\end{aligned}
+$$
+
+Explain why each estimator is included and what changes across specifications.
+
+## Results Section
+
+Suggested length: 1,000-1,400 words.
+
+Do not narrate every coefficient. Focus on the variables that answer the research question.
+
+Recommended order:
+
+1. Baseline gravity results.
+2. Institutional coefficient.
+3. Fixed-effects changes.
+4. PPML changes.
+5. Economic significance.
+
+Template:
+
+> The coefficient on `[policy variable]` is `[positive/negative/unstable]` across the main specifications. In the preferred model, the estimated coefficient is `[coefficient]`, which corresponds to a conditional percent difference of `[percent effect]`. This association should be interpreted conditional on `[controls and fixed effects]`.
+
+## Robustness Section
+
+Suggested length: 700-1,000 words.
+
+Robustness should test reasonable alternatives, not random model shopping.
+
+Examples:
+
+- Alternative estimator.
+- Alternative fixed effects.
+- Alternative sample period.
+- Alternative trade-flow measure.
+- Excluding outliers.
+- Positive-flow versus zero-inclusive estimation.
+- Robust versus clustered standard errors.
+
+Template:
+
+> The main result is robust across `[specifications]`, but changes under `[specification]`. This difference likely reflects `[sample, fixed-effect, or estimator reason]`. The result should therefore be interpreted as `[cautious interpretation]`.
+
+## Policy Discussion
+
+Suggested length: 600-900 words.
+
+Connect coefficients to mechanisms. Avoid treating formal membership as full implementation.
+
+Discuss:
+
+- Trade costs.
+- Customs and logistics.
+- Infrastructure.
+- Institutional quality.
+- Short-run versus long-run adjustment.
+- Limits of causal interpretation.
+
+Template:
+
+> The estimates suggest that `[institution]` is associated with `[direction]` bilateral trade conditional on the model controls. This pattern is consistent with `[mechanism]`, but the estimates do not prove that membership alone caused the change. Implementation, infrastructure, and market conditions may condition the effect.
+
+## Conclusion
+
+Suggested length: 400-600 words.
+
+The conclusion should:
+
+- Restate the research question.
+- Summarize the main empirical pattern.
+- Explain the policy relevance.
+- Acknowledge limitations.
+- Identify one clear next step.
+
+Avoid introducing new estimates or new literature in the conclusion.
+
+## Required Tables
+
+| Table | Content |
+|---|---|
+| Table 1 | Sample diagnostics and data coverage |
+| Table 2 | Descriptive statistics |
+| Table 3 | Top exporters and importers or trade concentration |
+| Table 4 | Main gravity results |
+| Table 5 | Robustness checks |
+| Table 6 | Coefficient comparison or preferred model summary |
+
+## Required Figures
+
+| Figure | Content |
+|---|---|
+| Figure 1 | Distribution of trade flows |
+| Figure 2 | Top exporters or top importers |
+| Figure 3 | Trade versus distance or GDP product |
+| Figure 4 | Selected coefficient comparison or trade network |
+
+## Reproducibility Checklist
+
+- Dataset path is documented.
+- Raw and cleaned files are distinguished.
+- Required variables are listed.
+- Sample restrictions are explicit.
+- Missing values are reviewed.
+- Zero-flow treatment is stated.
+- Python package versions are recorded.
+- Notebook runs from top to bottom.
+- Tables are generated from code.
+- Figures are generated from code.
+- Regression formulas match the paper.
+- Fixed effects are documented.
+- Standard errors are documented.
+- Convergence status is reported for PML models.
+
+## Submission Checklist
+
+Submit:
+
+1. Final paper PDF.
+2. Reproducible Python notebook.
+3. Clean dataset or documented data-construction script.
+4. Presentation slides.
+5. Replication notes.
+
+Before submission:
+
+- Confirm table numbers and captions.
+- Confirm figure numbers and captions.
+- Confirm all citations appear in the bibliography.
+- Confirm the paper does not claim causality unless the design supports it.
+- Confirm all placeholders have been replaced.
+- Confirm code and paper report the same sample size.

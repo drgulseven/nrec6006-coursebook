@@ -1,0 +1,675 @@
+---
+title: "Post-Soviet Gravity Replication in Python"
+format:
+  html:
+    toc: true
+    code-fold: false
+jupyter: python3
+execute:
+  echo: true
+  warning: true
+  message: false
+---
+
+## Purpose
+
+This notebook is the Python replication workflow for the Post-Soviet gravity project. It inspects the cleaned dataset, prepares gravity variables, estimates the baseline model sequence, and creates tables for comparison with the manuscript.
+
+The notebook expects the real dataset at:
+
+```text
+data/ExSoviet_balanced_clean.csv
+```
+
+It does not create synthetic data and it does not use `log(flow + 1)`.
+
+## Imports and settings
+
+```{python}
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+```
+
+```{python}
+DATA_CANDIDATES = [
+    Path("data/ExSoviet_balanced_clean.csv"),
+    Path("../data/ExSoviet_balanced_clean.csv"),
+]
+
+DATA_PATH = next((path for path in DATA_CANDIDATES if path.exists()), DATA_CANDIDATES[0])
+
+MANUSCRIPT_COEFFICIENT_CANDIDATES = [
+    Path("materials/manuscript-coefficients.csv"),
+    Path("../materials/manuscript-coefficients.csv"),
+]
+
+MANUSCRIPT_COEFFICIENTS_PATH = next(
+    (
+        path
+        for path in MANUSCRIPT_COEFFICIENT_CANDIDATES
+        if path.exists()
+    ),
+    MANUSCRIPT_COEFFICIENT_CANDIDATES[0],
+)
+
+REQUIRED_COLUMNS = [
+    "flow",
+    "gdp_o",
+    "gdp_d",
+    "distw",
+    "comlang_off",
+    "contig",
+    "wto_joint",
+    "EU_joint",
+    "EAEU_joint",
+    "year",
+    "iso_o",
+    "iso_d",
+]
+
+KEY_COEFFICIENTS = [
+    "log_distw",
+    "comlang_off",
+    "contig",
+    "wto_joint",
+    "EU_joint",
+    "EAEU_joint",
+    "log_gdp_o",
+    "log_gdp_d",
+]
+```
+
+## Load and inspect the dataset
+
+This cell stops immediately if the cleaned Post-Soviet file is missing. That is intentional: a replication notebook should fail clearly rather than proceed with the wrong dataset.
+
+```{python}
+if not DATA_PATH.exists():
+    raise FileNotFoundError(
+        f"Dataset not found: {DATA_PATH}. "
+        "Place the real Post-Soviet dataset in the coursebook data/ folder "
+        "before running this notebook."
+    )
+
+df_raw = pd.read_csv(DATA_PATH)
+
+print(f"Rows: {df_raw.shape[0]:,}")
+print(f"Columns: {df_raw.shape[1]:,}")
+print(list(df_raw.columns))
+
+df_raw.head()
+```
+
+```{python}
+missing_required = [column for column in REQUIRED_COLUMNS if column not in df_raw.columns]
+
+if missing_required:
+    raise ValueError(
+        "Missing required variables: "
+        + ", ".join(missing_required)
+        + ". Check that this is the cleaned Post-Soviet gravity dataset."
+    )
+
+missing_values = (
+    df_raw[REQUIRED_COLUMNS]
+    .isna()
+    .sum()
+    .reset_index()
+    .rename(columns={"index": "variable", 0: "missing_count"})
+)
+missing_values["missing_share"] = missing_values["missing_count"] / len(df_raw)
+missing_values
+```
+
+```{python}
+zero_flow_count = int((df_raw["flow"] == 0).sum())
+zero_flow_share = zero_flow_count / len(df_raw)
+
+positive_flow_mask = (
+    (df_raw["flow"] > 0)
+    & (df_raw["distw"] > 0)
+    & (df_raw["gdp_o"] > 0)
+    & (df_raw["gdp_d"] > 0)
+)
+
+sample_diagnostics = pd.DataFrame(
+    [
+        {
+            "rows": len(df_raw),
+            "columns": df_raw.shape[1],
+            "zero_flow_count": zero_flow_count,
+            "zero_flow_share": zero_flow_share,
+            "positive_flow_rows": int(positive_flow_mask.sum()),
+            "exporters": df_raw["iso_o"].nunique(),
+            "importers": df_raw["iso_d"].nunique(),
+            "years": df_raw["year"].nunique(),
+            "first_year": df_raw["year"].min(),
+            "last_year": df_raw["year"].max(),
+        }
+    ]
+)
+
+sample_diagnostics
+```
+
+## Prepare gravity variables
+
+The log-linear models use positive trade flows only. The PPML models use `flow` in levels and can include zero flows if the explanatory variables are valid.
+
+```{python}
+def prepare_gravity_variables(df):
+    data = df.copy()
+
+    numeric_columns = [
+        "flow",
+        "gdp_o",
+        "gdp_d",
+        "distw",
+        "comlang_off",
+        "contig",
+        "wto_joint",
+        "EU_joint",
+        "EAEU_joint",
+        "year",
+    ]
+
+    for column in numeric_columns:
+        data[column] = pd.to_numeric(data[column], errors="coerce")
+
+    data["iso_o"] = data["iso_o"].astype(str)
+    data["iso_d"] = data["iso_d"].astype(str)
+    data["year"] = data["year"].astype("Int64")
+
+    data["pair_id"] = data["iso_o"] + "_" + data["iso_d"]
+    data["exporter_year"] = data["iso_o"] + "_" + data["year"].astype(str)
+    data["importer_year"] = data["iso_d"] + "_" + data["year"].astype(str)
+
+    data["log_flow"] = np.where(data["flow"] > 0, np.log(data["flow"]), np.nan)
+    data["log_gdp_o"] = np.where(data["gdp_o"] > 0, np.log(data["gdp_o"]), np.nan)
+    data["log_gdp_d"] = np.where(data["gdp_d"] > 0, np.log(data["gdp_d"]), np.nan)
+    data["log_distw"] = np.where(data["distw"] > 0, np.log(data["distw"]), np.nan)
+
+    data["log_trade_intensity"] = np.where(
+        (data["flow"] > 0) & (data["gdp_o"] > 0) & (data["gdp_d"] > 0),
+        np.log(data["flow"]) - np.log(data["gdp_o"]) - np.log(data["gdp_d"]),
+        np.nan,
+    )
+
+    return data
+
+
+df = prepare_gravity_variables(df_raw)
+
+positive = df.loc[
+    (df["flow"] > 0)
+    & (df["distw"] > 0)
+    & (df["gdp_o"] > 0)
+    & (df["gdp_d"] > 0)
+].copy()
+
+print(f"All valid rows for level models: {df.dropna(subset=['flow', 'log_gdp_o', 'log_gdp_d', 'log_distw']).shape[0]:,}")
+print(f"Positive-flow rows for log models: {positive.shape[0]:,}")
+```
+
+## Model functions
+
+All OLS models use HC1 robust standard errors. PPML and GPML use robust standard errors where `statsmodels` supports them.
+
+```{python}
+def model_status(model):
+    return {
+        "converged": getattr(model, "converged", np.nan),
+        "nobs": getattr(model, "nobs", np.nan),
+        "llf": getattr(model, "llf", np.nan),
+    }
+
+
+def double_demean(data, variable, origin_col="iso_o", destination_col="iso_d"):
+    overall = data[variable].mean()
+    origin_mean = data.groupby(origin_col)[variable].transform("mean")
+    destination_mean = data.groupby(destination_col)[variable].transform("mean")
+    return data[variable] - origin_mean - destination_mean + overall
+
+
+def coefficient_table(model, model_name, variables=KEY_COEFFICIENTS):
+    rows = []
+    for variable in variables:
+        if variable in model.params.index:
+            rows.append(
+                {
+                    "model": model_name,
+                    "variable": variable,
+                    "coefficient": model.params[variable],
+                    "standard_error": model.bse[variable],
+                    "p_value": model.pvalues[variable],
+                }
+            )
+        else:
+            rows.append(
+                {
+                    "model": model_name,
+                    "variable": variable,
+                    "coefficient": np.nan,
+                    "standard_error": np.nan,
+                    "p_value": np.nan,
+                }
+            )
+    return pd.DataFrame(rows)
+```
+
+## Model 1: Classic OLS
+
+```{python}
+model_1_formula = (
+    "log_flow ~ log_gdp_o + log_gdp_d + log_distw + "
+    "comlang_off + contig + wto_joint + EU_joint + EAEU_joint"
+)
+
+model_1_ols = smf.ols(model_1_formula, data=positive).fit(cov_type="HC1")
+model_1_ols.summary()
+```
+
+## Model 2: FE OLS
+
+```{python}
+model_2_formula = (
+    "log_flow ~ log_distw + comlang_off + contig + "
+    "wto_joint + EU_joint + EAEU_joint + C(iso_o) + C(iso_d)"
+)
+
+model_2_fe_ols = smf.ols(model_2_formula, data=positive).fit(cov_type="HC1")
+model_2_fe_ols.summary()
+```
+
+## Model 3: Double-demeaned OLS
+
+```{python}
+ddm = positive.copy()
+
+for variable in [
+    "log_flow",
+    "log_distw",
+    "comlang_off",
+    "contig",
+    "wto_joint",
+    "EU_joint",
+    "EAEU_joint",
+]:
+    ddm[f"{variable}_ddm"] = double_demean(ddm, variable)
+
+model_3_formula = (
+    "log_flow_ddm ~ log_distw_ddm + comlang_off_ddm + contig_ddm + "
+    "wto_joint_ddm + EU_joint_ddm + EAEU_joint_ddm - 1"
+)
+
+model_3_ddm = smf.ols(model_3_formula, data=ddm).fit(cov_type="HC1")
+model_3_ddm.summary()
+```
+
+## Model 4: BVU normalized gravity
+
+This is the normalized gravity specification using `log_trade_intensity`. It should be checked against the exact Bonus Vetus transformation before publication.
+
+```{python}
+model_4_formula = (
+    "log_trade_intensity ~ log_distw + comlang_off + contig + "
+    "wto_joint + EU_joint + EAEU_joint"
+)
+
+model_4_bvu = smf.ols(model_4_formula, data=positive).fit(cov_type="HC1")
+model_4_bvu.summary()
+```
+
+## Model 5: PPML with GDP controls
+
+```{python}
+ppml_data = df.dropna(
+    subset=[
+        "flow",
+        "log_gdp_o",
+        "log_gdp_d",
+        "log_distw",
+        "comlang_off",
+        "contig",
+        "wto_joint",
+        "EU_joint",
+        "EAEU_joint",
+    ]
+).copy()
+
+model_5_formula = (
+    "flow ~ log_gdp_o + log_gdp_d + log_distw + "
+    "comlang_off + contig + wto_joint + EU_joint + EAEU_joint"
+)
+
+model_5_ppml = smf.glm(
+    formula=model_5_formula,
+    data=ppml_data,
+    family=sm.families.Poisson(),
+).fit(cov_type="HC1")
+
+model_5_ppml.summary()
+```
+
+## Model 6: GPML
+
+GPML requires positive trade flows. This specification includes exporter and importer fixed effects.
+
+```{python}
+gpml_data = positive.dropna(
+    subset=[
+        "flow",
+        "log_distw",
+        "comlang_off",
+        "contig",
+        "wto_joint",
+        "EU_joint",
+        "EAEU_joint",
+        "iso_o",
+        "iso_d",
+    ]
+).copy()
+
+model_6_formula = (
+    "flow ~ log_distw + comlang_off + contig + "
+    "wto_joint + EU_joint + EAEU_joint + C(iso_o) + C(iso_d)"
+)
+
+model_6_gpml = smf.glm(
+    formula=model_6_formula,
+    data=gpml_data,
+    family=sm.families.Gamma(link=sm.families.links.Log()),
+).fit(cov_type="HC1")
+
+model_6_gpml.summary()
+```
+
+## Model 7: Zero-inclusive PPML
+
+Model 7 uses the same formula as Model 5. The distinction is conceptual: it is estimated on all valid observations, including zero flows.
+
+::: {.callout-warning}
+The teaching dataset currently contains no zero trade flows. Therefore this model is structurally equivalent to a positive-flow PPML exercise and cannot fully reproduce the manuscript's broader zero-inclusive PPML table.
+:::
+
+```{python}
+model_7_zero_ppml = smf.glm(
+    formula=model_5_formula,
+    data=ppml_data,
+    family=sm.families.Poisson(),
+).fit(cov_type="HC1")
+
+model_7_zero_ppml.summary()
+```
+
+## Model 8: Structural zero-inclusive PPML
+
+Exporter-year and importer-year fixed effects absorb GDP and other country-year terms. If clustering by `pair_id` is feasible, the notebook reports clustered standard errors. Otherwise it returns the robust model and records the reason.
+
+```{python}
+structural_data = df.dropna(
+    subset=[
+        "flow",
+        "log_distw",
+        "comlang_off",
+        "contig",
+        "wto_joint",
+        "EU_joint",
+        "EAEU_joint",
+        "exporter_year",
+        "importer_year",
+        "pair_id",
+    ]
+).copy()
+
+model_8_formula = (
+    "flow ~ log_distw + comlang_off + contig + "
+    "wto_joint + EU_joint + EAEU_joint + "
+    "C(exporter_year) + C(importer_year)"
+)
+
+model_8_structural_ppml = smf.glm(
+    formula=model_8_formula,
+    data=structural_data,
+    family=sm.families.Poisson(),
+).fit(cov_type="HC1")
+
+cluster_note = "Clustered standard errors not attempted yet."
+model_8_structural_ppml_clustered = None
+
+try:
+    model_8_structural_ppml_clustered = smf.glm(
+        formula=model_8_formula,
+        data=structural_data,
+        family=sm.families.Poisson(),
+    ).fit(
+        cov_type="cluster",
+        cov_kwds={"groups": structural_data["pair_id"]},
+    )
+    cluster_note = "Clustered standard errors by pair_id estimated."
+except Exception as error:
+    cluster_note = f"Clustered standard errors by pair_id were not feasible: {error}"
+
+cluster_note
+```
+
+```{python}
+model_8_structural_ppml.summary()
+```
+
+## Model convergence status
+
+```{python}
+models = {
+    "Classic OLS": model_1_ols,
+    "FE OLS": model_2_fe_ols,
+    "DDM OLS": model_3_ddm,
+    "BVU": model_4_bvu,
+    "PPML GDP controls": model_5_ppml,
+    "GPML": model_6_gpml,
+    "Zero-inclusive PPML": model_7_zero_ppml,
+    "Structural PPML": model_8_structural_ppml,
+}
+
+convergence_status = pd.DataFrame(
+    [{"model": name, **model_status(model)} for name, model in models.items()]
+)
+
+convergence_status
+```
+
+## Output tables
+
+### OLS and FE results
+
+```{python}
+ols_fe_results = pd.concat(
+    [
+        coefficient_table(model_1_ols, "Classic OLS"),
+        coefficient_table(model_2_fe_ols, "FE OLS"),
+    ],
+    ignore_index=True,
+)
+
+ols_fe_results
+```
+
+### DDM comparison
+
+```{python}
+ddm_results = coefficient_table(
+    model_3_ddm,
+    "DDM OLS",
+    [
+        "log_distw_ddm",
+        "comlang_off_ddm",
+        "contig_ddm",
+        "wto_joint_ddm",
+        "EU_joint_ddm",
+        "EAEU_joint_ddm",
+    ],
+)
+
+ddm_results
+```
+
+### BVU result
+
+```{python}
+bvu_results = coefficient_table(model_4_bvu, "BVU")
+bvu_results
+```
+
+### PPML and GPML result
+
+```{python}
+ppml_gpml_results = pd.concat(
+    [
+        coefficient_table(model_5_ppml, "PPML GDP controls"),
+        coefficient_table(model_6_gpml, "GPML"),
+    ],
+    ignore_index=True,
+)
+
+ppml_gpml_results
+```
+
+### Zero-inclusive PPML result
+
+```{python}
+zero_inclusive_results = pd.concat(
+    [
+        coefficient_table(model_7_zero_ppml, "Zero-inclusive PPML"),
+        coefficient_table(model_8_structural_ppml, "Structural PPML"),
+    ],
+    ignore_index=True,
+)
+
+zero_inclusive_results
+```
+
+## Manuscript comparison table
+
+The notebook reads the manuscript-reported coefficients from:
+
+```text
+materials/manuscript-coefficients.csv
+```
+
+The comparison uses rounded coefficients as reported in the manuscript tables. Match status is assigned as follows:
+
+- `exact`: `abs(difference) < 0.001`;
+- `close`: `abs(difference) < 0.01`;
+- `review`: all larger non-missing differences;
+- `not_applicable`: the manuscript or Python model does not report that coefficient.
+
+```{python}
+if not MANUSCRIPT_COEFFICIENTS_PATH.exists():
+    raise FileNotFoundError(
+        f"Manuscript coefficient file not found: {MANUSCRIPT_COEFFICIENTS_PATH}"
+    )
+
+manuscript_coefficients = pd.read_csv(MANUSCRIPT_COEFFICIENTS_PATH)
+
+comparison_models = {
+    "Classic OLS": model_1_ols,
+    "FE OLS": model_2_fe_ols,
+    "DDM": model_3_ddm,
+    "BVU": model_4_bvu,
+    "PPML": model_5_ppml,
+    "GPML": model_6_gpml,
+    "Zero-inclusive PPML": model_7_zero_ppml,
+    "Structural PPML": model_8_structural_ppml,
+}
+
+ddm_parameter_map = {
+    "log_distw": "log_distw_ddm",
+    "comlang_off": "comlang_off_ddm",
+    "contig": "contig_ddm",
+    "wto_joint": "wto_joint_ddm",
+    "EU_joint": "EU_joint_ddm",
+    "EAEU_joint": "EAEU_joint_ddm",
+}
+
+
+def python_beta_for(model_name, variable):
+    model = comparison_models[model_name]
+    parameter = ddm_parameter_map.get(variable, variable) if model_name == "DDM" else variable
+
+    if parameter not in model.params.index:
+        return np.nan
+
+    return model.params[parameter]
+
+
+def classify_match(difference):
+    if pd.isna(difference):
+        return "not_applicable"
+
+    absolute_difference = abs(difference)
+    if absolute_difference < 0.001:
+        return "exact"
+    if absolute_difference < 0.01:
+        return "close"
+    return "review"
+
+comparison_rows = []
+for row in manuscript_coefficients.itertuples(index=False):
+    python_beta = python_beta_for(row.model, row.variable)
+    manuscript_beta = row.manuscript_beta
+    difference = (
+        python_beta - manuscript_beta
+        if pd.notna(python_beta) and pd.notna(manuscript_beta)
+        else np.nan
+    )
+
+    comparison_rows.append(
+        {
+            "model": row.model,
+            "variable": row.variable,
+            "manuscript_beta": manuscript_beta,
+            "python_beta": python_beta,
+            "difference": difference,
+            "match_status": classify_match(difference),
+        }
+    )
+
+manuscript_comparison = pd.DataFrame(comparison_rows)
+manuscript_comparison
+```
+
+```{python}
+replication_quality_counts = (
+    manuscript_comparison["match_status"]
+    .value_counts()
+    .rename_axis("match_status")
+    .reset_index(name="count")
+)
+
+replication_quality_counts
+```
+
+```{python}
+replication_review_items = manuscript_comparison.loc[
+    manuscript_comparison["match_status"] == "review"
+].copy()
+
+replication_review_items
+```
+
+## Discrepancy diagnosis
+
+If Python estimates differ from the manuscript, check these sources first:
+
+- sample mismatch;
+- zero-flow treatment;
+- fixed effects;
+- robust versus clustered standard errors;
+- variable definitions;
+- missing values;
+- scaling of trade or GDP;
+- differences between manuscript tables and the exact code used to produce them.

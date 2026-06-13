@@ -1,0 +1,14 @@
+# Appendices {.unnumbered}
+
+The appendices collect the reusable materials for the replication notebook, R-to-Python translation, formula notation, paper writing, literature review, and final project assessment.
+
+| Appendix | Topic | Main Use |
+|---|---|---|
+| [A](appendix-a-python-gravity-code-library.qmd) | Python Code | Reusable Python gravity functions |
+| [B](appendix-b-r-to-python-translation-guide.qmd) | R to Python | Translation guide for R gravity workflows |
+| [C](appendix-c-gravity-formula-sheet.qmd) | Formula Sheet | Consistent notation for models and papers |
+| [D](appendix-d-research-paper-template.qmd) | Paper Template | Structure for the final empirical paper |
+| [E](appendix-e-essential-gravity-literature.qmd) | Literature | Annotated gravity reading guide |
+| [F](appendix-f-project-rubric.qmd) | Rubric | 100-point final project rubric |
+
+Use these materials as reference tools while building the replication package and writing the final publication-style gravity paper.

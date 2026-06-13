@@ -1,0 +1,402 @@
+---
+title: "PPML"
+---
+
+## Purpose
+
+This chapter explains zero-inclusive and multiplicative gravity estimators for the Post-Soviet replication. It covers PPML, GPML, NBPML, and structural PPML with exporter-year and importer-year fixed effects.
+
+## Theory
+
+Modern gravity models are multiplicative. Estimating a log-linear model with OLS changes the model and drops zero trade flows. PML estimators keep `flow` in levels and specify a conditional mean.
+
+The general conditional-mean form is:
+
+$$
+\begin{aligned}
+E[flow_{ijt} \mid X_{ijt}]
+&= \exp(X_{ijt}\beta)
+\end{aligned}
+$$
+
+where $X_{ijt}$ includes `log(distw)`, `comlang_off`, `contig`, `wto_joint`, `EU_joint`, `EAEU_joint`, `year`, and fixed effects when required.
+
+## Why PML estimators exist
+
+PML estimators exist because trade data are skewed, heteroskedastic, and often include zero flows. They allow students to estimate gravity models without transforming the dependent variable into `log(flow)`.
+
+## Shared setup
+
+```python
+import numpy as np
+import pandas as pd
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+```
+
+```python
+df = pd.read_csv("data/gravity_clean.csv")
+
+df = df.loc[df["flow"].notna()].copy()
+df["log_gdp_o"] = np.log(df["gdp_o"])
+df["log_gdp_d"] = np.log(df["gdp_d"])
+df["log_distw"] = np.log(df["distw"])
+```
+
+The examples below do not fabricate fitted values or results. They show how the Post-Soviet variables enter each estimator.
+
+## PPML
+
+### Theory
+
+PPML estimates the exponential conditional mean of trade in levels. It is widely used in gravity because it can keep valid zero trade flows and is robust to important heteroskedasticity concerns.
+
+### Equation
+
+$$
+\begin{aligned}
+E[flow_{ijt} \mid X_{ijt}]
+&= \exp\left(
+\beta_0
++ \beta_1 \log(gdp\_o_{it})
++ \beta_2 \log(gdp\_d_{jt}) \right.\\
+&\quad \left.
++ \beta_3 \log(distw_{ij})
++ \gamma Z_{ijt}
++ \delta_t
+\right)
+\end{aligned}
+$$
+
+### Advantages
+
+- Keeps `flow == 0` when zeros are valid observations.
+- Estimates the multiplicative gravity model directly.
+- Coefficients can be interpreted through semi-elasticities.
+- Works naturally with fixed effects in structural gravity.
+
+### Limitations
+
+- Can be computationally heavy with many fixed effects.
+- Sensitive to separation and convergence issues.
+- Requires careful checking of zeros and missing values.
+- Standard `statsmodels` dummy expansion may not scale to very large panels.
+
+### R implementation
+
+```r
+library(fixest)
+
+df <- read.csv("data/gravity_clean.csv")
+
+ppml_r <- fepois(
+  flow ~ log(distw) + comlang_off + contig +
+    wto_joint + EU_joint + EAEU_joint |
+    year,
+  data = df,
+  vcov = "hetero"
+)
+
+summary(ppml_r)
+```
+
+### Python implementation
+
+```python
+ppml_formula = (
+    "flow ~ log_gdp_o + log_gdp_d + log_distw + "
+    "comlang_off + contig + wto_joint + EU_joint + EAEU_joint + C(year)"
+)
+
+ppml_py = smf.glm(
+    formula=ppml_formula,
+    data=df,
+    family=sm.families.Poisson(),
+).fit(cov_type="HC1")
+```
+
+### Interpretation
+
+For continuous logged variables, coefficients are elasticity-like. For dummy variables:
+
+$$
+100 \times \left(\exp(\gamma) - 1\right)
+$$
+
+is the conditional percent difference associated with the dummy.
+
+## GPML
+
+### Theory
+
+Gamma PML estimates a positive continuous dependent variable with a log link. It is sometimes used as an alternative multiplicative estimator when the dependent variable is strictly positive.
+
+### Equation
+
+$$
+\begin{aligned}
+E[flow_{ijt} \mid X_{ijt}]
+&= \exp(X_{ijt}\beta),
+\quad flow_{ijt} > 0
+\end{aligned}
+$$
+
+### Why it exists
+
+GPML exists as an alternative quasi-likelihood for positive continuous outcomes. In gravity work, it can be compared with PPML when the sample excludes zero flows.
+
+### Advantages
+
+- Models positive continuous trade values in levels.
+- Uses a log link, preserving multiplicative interpretation.
+- Useful as a robustness comparison.
+
+### Limitations
+
+- Cannot use zero trade flows directly.
+- Not the default modern gravity estimator.
+- Results can differ from PPML because the variance assumption differs.
+
+### R implementation
+
+```r
+gpml_df <- subset(df, flow > 0)
+
+gpml_r <- glm(
+  flow ~ log(gdp_o) + log(gdp_d) + log(distw) +
+    comlang_off + contig + wto_joint + EU_joint + EAEU_joint +
+    factor(year),
+  data = gpml_df,
+  family = Gamma(link = "log")
+)
+```
+
+### Python implementation
+
+```python
+gpml_df = df.loc[df["flow"] > 0].copy()
+
+gpml_formula = (
+    "flow ~ log_gdp_o + log_gdp_d + log_distw + "
+    "comlang_off + contig + wto_joint + EU_joint + EAEU_joint + C(year)"
+)
+
+gpml_py = smf.glm(
+    formula=gpml_formula,
+    data=gpml_df,
+    family=sm.families.Gamma(link=sm.families.links.Log()),
+).fit(cov_type="HC1")
+```
+
+### Interpretation
+
+Interpret dummy and continuous coefficients using the same exponential logic as PPML, but state that GPML uses a positive-flow sample.
+
+## NBPML
+
+### Theory
+
+Negative binomial PML is another multiplicative estimator. It allows overdispersion relative to Poisson. In trade applications, it can be used as a robustness estimator when variance appears much larger than the mean.
+
+### Equation
+
+$$
+\begin{aligned}
+E[flow_{ijt} \mid X_{ijt}]
+&= \exp(X_{ijt}\beta)
+\end{aligned}
+$$
+
+with a negative-binomial variance structure.
+
+### Why it exists
+
+NBPML exists to relax the strict Poisson variance relationship while retaining a log-link conditional mean.
+
+### Advantages
+
+- Allows overdispersion.
+- Keeps level-based interpretation.
+- Can include zero flows.
+- Useful as a robustness comparison.
+
+### Limitations
+
+- Can be harder to estimate and interpret.
+- May be sensitive to convergence and dispersion assumptions.
+- Not a substitute for thinking carefully about zeros, fixed effects, and model design.
+
+### R implementation
+
+```r
+library(MASS)
+
+nbpml_r <- glm.nb(
+  flow ~ log(gdp_o) + log(gdp_d) + log(distw) +
+    comlang_off + contig + wto_joint + EU_joint + EAEU_joint +
+    factor(year),
+  data = df
+)
+```
+
+### Python implementation
+
+```python
+nbpml_formula = (
+    "flow ~ log_gdp_o + log_gdp_d + log_distw + "
+    "comlang_off + contig + wto_joint + EU_joint + EAEU_joint + C(year)"
+)
+
+nbpml_py = smf.glm(
+    formula=nbpml_formula,
+    data=df,
+    family=sm.families.NegativeBinomial(),
+).fit(cov_type="HC1")
+```
+
+### Interpretation
+
+Interpret coefficients through the exponential conditional mean. Report NBPML as a robustness estimator unless the research design gives a specific reason to prefer it.
+
+## Zero-inclusive PPML
+
+### Theory
+
+Zero-inclusive PPML keeps observations where `flow == 0` as long as they are true observed zero trade flows rather than missing or miscoded values.
+
+### Equation
+
+$$
+\begin{aligned}
+E[flow_{ijt} \mid X_{ijt}]
+&= \exp(X_{ijt}\beta),
+\quad flow_{ijt} \ge 0
+\end{aligned}
+$$
+
+### Why it exists
+
+Zero-inclusive PPML exists because zero trade flows are economically meaningful in many gravity panels. Dropping them can change the research question.
+
+### R implementation
+
+```r
+zero_ppml_r <- fepois(
+  flow ~ log(distw) + comlang_off + contig +
+    wto_joint + EU_joint + EAEU_joint |
+    year,
+  data = df,
+  vcov = "hetero"
+)
+```
+
+### Python implementation
+
+```python
+zero_ppml_df = df.loc[df["flow"] >= 0].copy()
+
+zero_ppml_py = smf.glm(
+    formula=ppml_formula,
+    data=zero_ppml_df,
+    family=sm.families.Poisson(),
+).fit(cov_type="HC1")
+```
+
+### Interpretation
+
+State clearly whether zeros are included and how many observations enter the model. The key comparison is not only coefficient size but also sample definition.
+
+## Structural PPML with exporter-year and importer-year fixed effects
+
+### Theory
+
+Structural PPML absorbs exporter-year and importer-year conditions. This is close to modern structural gravity practice because it controls for time-varying exporter supply, importer demand, and multilateral resistance.
+
+### Equation
+
+$$
+\begin{aligned}
+E[flow_{ijt} \mid X_{ijt}]
+&= \exp\left(
+\gamma_1 wto\_joint_{ijt}
++ \gamma_2 EU\_joint_{ijt}
++ \gamma_3 EAEU\_joint_{ijt} \right.\\
+&\quad \left.
++ \mu_{ij}
++ \alpha_{it}
++ \delta_{jt}
+\right)
+\end{aligned}
+$$
+
+where $\mu_{ij}$ is a pair fixed effect, $\alpha_{it}$ is an exporter-year fixed effect, and $\delta_{jt}$ is an importer-year fixed effect.
+
+### Why it exists
+
+This model exists to compare institutional changes within pairs while absorbing time-varying exporter and importer conditions.
+
+### Advantages
+
+- Closely connected to structural gravity.
+- Keeps zero flows through PPML.
+- Controls for rich exporter-year and importer-year heterogeneity.
+- Focuses interpretation on institutional variables that vary over time.
+
+### Limitations
+
+- Requires exporter and importer identifiers.
+- Absorbs `gdp_o`, `gdp_d`, and many country-year variables.
+- Can be computationally expensive in ordinary Python dummy expansion.
+- May require specialized estimators for large panels.
+
+### R implementation
+
+```r
+df$pair_id <- paste(df$iso3_o, df$iso3_d, sep = "_")
+
+structural_ppml_r <- fepois(
+  flow ~ wto_joint + EU_joint + EAEU_joint |
+    pair_id + iso3_o^year + iso3_d^year,
+  data = df,
+  vcov = "hetero"
+)
+```
+
+### Python implementation
+
+The transparent `statsmodels` version is useful for teaching but may be slow.
+
+```python
+df["pair_id"] = df["iso3_o"] + "_" + df["iso3_d"]
+
+structural_ppml_formula = (
+    "flow ~ wto_joint + EU_joint + EAEU_joint + "
+    "C(pair_id) + C(iso3_o):C(year) + C(iso3_d):C(year)"
+)
+
+structural_ppml_py = smf.glm(
+    formula=structural_ppml_formula,
+    data=df,
+    family=sm.families.Poisson(),
+).fit(cov_type="HC1")
+```
+
+### Interpretation
+
+In this saturated model, the institutional coefficients are identified from within-pair changes after controlling for exporter-year and importer-year shocks. Do not interpret `gdp_o`, `gdp_d`, or `distw` in this model, because they are absorbed or excluded by design.
+
+## Estimator comparison table
+
+Students should create a comparison table with no invented results:
+
+| Estimator | Dependent variable | Zero flows | Key institutional variables | Main caution |
+|---|---|---|---|---|
+| OLS | `log(flow)` | Dropped | `wto_joint`, `EU_joint`, `EAEU_joint` | Positive-flow sample only |
+| PPML | `flow` | Included if valid | `wto_joint`, `EU_joint`, `EAEU_joint` | Check convergence and separation |
+| GPML | `flow` | Dropped | `wto_joint`, `EU_joint`, `EAEU_joint` | Positive-flow sample only |
+| NBPML | `flow` | Included if valid | `wto_joint`, `EU_joint`, `EAEU_joint` | Dispersion assumptions |
+| Structural PPML | `flow` | Included if valid | `wto_joint`, `EU_joint`, `EAEU_joint` | High-dimensional fixed effects |
+
+## Research output
+
+Prepare a PML replication plan that specifies which observations enter PPML, GPML, NBPML, and structural PPML; which fixed effects are included; and how institutional coefficients will be interpreted.

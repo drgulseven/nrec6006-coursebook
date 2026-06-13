@@ -1,0 +1,12 @@
+# Part V: Writing and Publishing Research {.unnumbered}
+
+Part V turns the Post-Soviet replication experience into an original region-specific gravity paper. Students keep the workflow they learned in the replication: define a question, rebuild the data, describe the sample, estimate gravity models, run robustness checks, and write cautious policy interpretation.
+
+The final course output is a reproducible Python notebook and a publication-style empirical paper. The paper should read like applied trade research, not like a collection of disconnected regressions.
+
+| Chp | Topic | Main Output |
+|---|---|---|
+| [14](chp-14-writing-region-specific-gravity-paper.qmd) | Paper writing | Publication-style manuscript plan |
+| [15](chp-15-final-paper-presentation-revision-workshop.qmd) | Final workshop | Submission package and revision plan |
+
+This part contributes to the final paper by helping students move from replication to independent research while preserving reproducibility, transparency, and careful interpretation.

@@ -1,0 +1,129 @@
+---
+title: "Gravity Theory"
+---
+
+## Introduction
+
+Gravity models explain bilateral trade using economic size and trade costs. In the Post-Soviet replication, bilateral trade is measured by $flow$, economic mass by $gdp\_o$ and $gdp\_d$, distance by $distw$, and institutional alignment by $wto\_joint$, $EU\_joint$, and $EAEU\_joint$.
+
+The model begins with an intuitive analogy, but modern gravity research requires fixed effects, multilateral resistance, and estimators that handle heteroskedasticity.
+
+## Newtonian intuition
+
+The gravity analogy comes from physics: larger bodies attract more strongly, and distance weakens attraction. In trade, larger economies tend to trade more, while distance and other trade frictions reduce trade.
+
+A basic gravity relationship can be written as:
+
+$$
+X_{ij}
+= G Y_i^{\beta_1}
+Y_j^{\beta_2}
+D_{ij}^{\beta_3}
+$$
+
+where $X_{ij}$ is trade from exporter $i$ to importer $j$, $Y_i$ and $Y_j$ measure economic size, and $D_{ij}$ measures distance or trade costs.
+
+This equation is useful for intuition, but it is not yet a complete empirical model.
+
+## Economic mass
+
+Economic mass captures the idea that larger economies trade more. Exporter GDP, $gdp\_o$, measures production capacity. Importer GDP, $gdp\_d$, measures market size and absorption capacity.
+
+In the Post-Soviet replication, both GDP variables are central in baseline OLS and PPML specifications. In fixed-effects and structural models, GDP may be absorbed by exporter, importer, exporter-year, or importer-year fixed effects.
+
+## Bilateral trade costs
+
+Trade costs include more than distance. The replication uses:
+
+| Variable | Trade-cost interpretation |
+|---|---|
+| $distw$ | Weighted distance between exporter and importer |
+| $contig$ | Shared land border |
+| $comlang\_off$ | Common official language |
+| $wto\_joint$ | Shared WTO membership |
+| $EU\_joint$ | Shared EU membership |
+| $EAEU\_joint$ | Shared EAEU membership |
+
+Some variables measure geography. Others measure institutional alignment. All are interpreted conditionally on the model.
+
+## Log-linear gravity
+
+The teaching baseline is the log-linear gravity model:
+
+$$
+\begin{aligned}
+\log X_{ijt}
+&= \beta_0
++ \beta_1 \log GDP_{it}
++ \beta_2 \log GDP_{jt} \\
+&\quad
++ \beta_3 \log Dist_{ij}
++ \gamma Z_{ijt}
++ \varepsilon_{ijt}
+\end{aligned}
+$$
+
+Here, $Z_{ijt}$ includes variables such as $comlang\_off$, $contig$, $wto\_joint$, $EU\_joint$, and $EAEU\_joint$.
+
+OLS remains useful for teaching because coefficients are easy to interpret and the model reveals the core gravity logic. It is not sufficient on its own because log-linear models exclude zero trade flows and may be biased under heteroskedasticity.
+
+## Structural gravity
+
+Structural gravity connects the empirical model to general equilibrium trade theory. A simplified structural form is:
+
+$$
+\begin{aligned}
+X_{ij}
+&= \frac{Y_i E_j}{Y}
+\left(
+\frac{\tau_{ij}}{\Pi_i P_j}
+\right)^{1-\sigma}
+\end{aligned}
+$$
+
+where $Y_i$ is exporter output, $E_j$ is importer expenditure, $\tau_{ij}$ is bilateral trade cost, and $\Pi_i$ and $P_j$ are outward and inward multilateral resistance terms.
+
+The important lesson is that bilateral trade depends not only on the direct cost between $i$ and $j$, but also on how difficult it is for each country to trade with all other partners.
+
+## Multilateral resistance
+
+Multilateral resistance means that trade between two countries depends on their alternatives. A country pair may trade a lot not only because they are close to each other, but because other trading options are costly.
+
+Ignoring multilateral resistance can bias distance and policy coefficients. Modern gravity models therefore use fixed effects to absorb unobserved exporter, importer, and country-year conditions.
+
+## Why fixed effects matter
+
+Fixed effects control for unobserved heterogeneity.
+
+| Fixed effect | What it absorbs |
+|---|---|
+| Exporter fixed effects | Time-invariant exporter characteristics |
+| Importer fixed effects | Time-invariant importer characteristics |
+| Pair fixed effects | Time-invariant bilateral characteristics |
+| Exporter-year fixed effects | Time-varying exporter conditions and outward resistance |
+| Importer-year fixed effects | Time-varying importer conditions and inward resistance |
+
+In the Post-Soviet replication, fixed effects change institutional interpretation. For example, $wto\_joint$ is specification-sensitive, while $EU\_joint$ remains positive across models.
+
+## Why PPML matters
+
+PPML estimates a multiplicative gravity model in levels:
+
+$$
+\begin{aligned}
+E[X_{ijt} \mid Z_{ijt}]
+&= \exp\left(
+\beta_0
++ \beta_1 \log Dist_{ij}
++ \gamma Z_{ijt}
+\right)
+\end{aligned}
+$$
+
+PPML matters because it can include zero trade flows when they are present and is robust to common forms of heteroskedasticity. Even when a teaching dataset has no zero flows, PPML is useful because it estimates the model in levels rather than logged trade.
+
+## What students should take forward
+
+Gravity intuition is simple: large economies trade more, and trade costs reduce trade. Applied gravity research is more demanding: students must choose variables carefully, understand fixed effects, handle zeros transparently, and interpret institutional coefficients across specifications.
+
+The rest of the course turns this logic into a reproducible Python replication and then into a publication-style regional gravity paper.

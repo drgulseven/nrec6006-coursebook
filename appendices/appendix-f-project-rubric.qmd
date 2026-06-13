@@ -1,0 +1,128 @@
+---
+title: "Rubric"
+---
+
+## Purpose
+
+This appendix defines the 100-point rubric for the replication notebook, final paper, presentation, and reproducibility package. The goal is not only to grade the project, but to make the standard for a publication-style gravity paper explicit.
+
+## Point Summary
+
+| Category | Points |
+|---|---:|
+| Research question and motivation | 15 |
+| Data construction and documentation | 15 |
+| Descriptive analysis | 10 |
+| Econometric estimation | 20 |
+| Robustness and interpretation | 15 |
+| Writing quality and structure | 15 |
+| Presentation and reproducibility | 10 |
+| **Total** | **100** |
+
+## Research Question and Motivation: 15 Points
+
+| Level | Criteria |
+|---|---|
+| Excellent | Clear policy or institutional question; strong regional motivation; direct link to gravity; contribution is specific and credible. |
+| Good | Research question is clear but motivation or contribution needs sharper framing. |
+| Needs Revision | Topic is relevant but the empirical question is too broad, descriptive, or disconnected from gravity estimation. |
+| Insufficient | No clear research question or no connection between the policy issue and bilateral trade. |
+
+Minimum expectation: the paper must state one testable gravity research question.
+
+## Data Construction and Documentation: 15 Points
+
+| Level | Criteria |
+|---|---|
+| Excellent | Dataset is reproducible; countries, years, dyads, variables, missing values, and zero-flow treatment are fully documented. |
+| Good | Dataset is mostly reproducible, with minor gaps in documentation or variable definitions. |
+| Needs Revision | Dataset exists but cleaning logic, sample restrictions, or variable construction are unclear. |
+| Insufficient | Dataset cannot be reproduced or required variables are missing. |
+
+Minimum expectation: the notebook must validate the required variables and report sample size.
+
+## Descriptive Analysis: 10 Points
+
+| Level | Criteria |
+|---|---|
+| Excellent | Descriptive statistics, trade concentration, zero-flow review, and at least one meaningful figure motivate the regression design. |
+| Good | Descriptive analysis covers the main variables but interpretation is limited. |
+| Needs Revision | Descriptive tables or figures are present but disconnected from the research question. |
+| Insufficient | Little or no descriptive analysis. |
+
+Minimum expectation: the paper must include descriptive statistics and at least one figure.
+
+## Econometric Estimation: 20 Points
+
+| Level | Criteria |
+|---|---|
+| Excellent | Correctly estimates baseline OLS, fixed-effects OLS, PPML, and at least one additional specification; formulas, samples, fixed effects, and standard errors are explicit. |
+| Good | Main estimators are present with minor issues in explanation or reporting. |
+| Needs Revision | Estimation is incomplete, formulas are unclear, or fixed effects are not documented. |
+| Insufficient | Regression results are missing, incorrectly specified, or not reproducible. |
+
+Minimum expectation: the final paper must include OLS, fixed-effects OLS, and PPML.
+
+## Robustness and Interpretation: 15 Points
+
+| Level | Criteria |
+|---|---|
+| Excellent | Robustness checks are theoretically motivated; coefficient stability is assessed; interpretation is cautious and tied to model structure. |
+| Good | Robustness checks are present, but the discussion of why results change is limited. |
+| Needs Revision | Robustness is mechanical or poorly connected to the research question. |
+| Insufficient | No meaningful robustness checks or overclaiming from unstable coefficients. |
+
+Minimum expectation: the paper must include at least one robustness check and explain why it matters.
+
+## Writing Quality and Structure: 15 Points
+
+| Level | Criteria |
+|---|---|
+| Excellent | Paper follows a journal-style structure; prose is clear; tables and figures are integrated; claims are precise and supported by evidence. |
+| Good | Structure is complete and readable, with some uneven transitions or underdeveloped interpretation. |
+| Needs Revision | Paper has the right sections but lacks coherence, precision, or sufficient explanation. |
+| Insufficient | Writing is incomplete, disorganized, or inconsistent with the reported analysis. |
+
+Minimum expectation: the paper must include introduction, literature, data, methods, results, robustness, policy discussion, and conclusion.
+
+## Presentation and Reproducibility: 10 Points
+
+| Level | Criteria |
+|---|---|
+| Excellent | Presentation communicates the question, data, models, findings, and limitations clearly; notebook runs from start to finish; submission package is complete. |
+| Good | Presentation and notebook are mostly complete, with minor reproducibility or communication issues. |
+| Needs Revision | Presentation is incomplete or notebook requires substantial manual intervention. |
+| Insufficient | Presentation missing or analysis cannot be reproduced. |
+
+Minimum expectation: students must submit a runnable notebook, final paper PDF, and slides.
+
+## Minimum Pass Requirements
+
+To pass the project, students must satisfy all of the following:
+
+- Submit a final paper and a Python notebook.
+- Use a bilateral dyad-year gravity dataset.
+- Report the sample size, countries, years, and zero-flow treatment.
+- Estimate at least one OLS model and one PPML model.
+- Include at least one robustness check.
+- Avoid fabricated data, fabricated results, or undocumented coefficient changes.
+- Cite the core gravity literature.
+- Discuss limitations honestly.
+
+Failure to meet any minimum pass requirement can cap the project grade even if other sections are strong.
+
+## Publication-Readiness Indicators
+
+A high-scoring paper should be close to a conference-ready draft. Indicators include:
+
+- Research question is narrow enough to test.
+- Code and paper report the same sample.
+- Coefficient tables can be regenerated from the notebook.
+- Institutional variables are interpreted cautiously.
+- Robustness checks support the argument.
+- Tables and figures are publication-readable.
+- The conclusion does not overstate causality.
+
+## Grading Notes
+
+The rubric rewards transparent research more than convenient results. A paper with mixed or unstable coefficients can score highly if the student explains the pattern carefully and documents the workflow. A paper with attractive results but weak documentation should not be treated as publication-ready.

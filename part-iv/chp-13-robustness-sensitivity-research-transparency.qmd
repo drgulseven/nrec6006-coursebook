@@ -1,0 +1,138 @@
+---
+title: "Robustness"
+---
+
+## Introduction
+
+Robustness is not just adding extra regressions. In applied gravity research, robustness is a disciplined way to test whether a result survives reasonable changes in specification, estimator, fixed effects, and sample definition.
+
+The Post-Soviet replication is useful because the main institutional results do not all behave the same way. $EU\_joint$ is robustly positive across models. $wto\_joint$ is specification-sensitive. $EAEU\_joint$ is positive in fixed-effects and multiplicative models but less stable than $EU\_joint$. Distance remains negative across the main specifications.
+
+## What robustness means in gravity models
+
+Gravity estimates can change for good reasons. A robustness section should explain these changes rather than hide them.
+
+| Source of sensitivity | Gravity-model meaning |
+|---|---|
+| Estimator sensitivity | OLS, PPML, GPML, and normalized models answer related but different empirical questions. |
+| Fixed-effect sensitivity | Exporter, importer, pair, exporter-year, and importer-year effects absorb different sources of unobserved heterogeneity. |
+| Sample sensitivity | Positive-flow samples and zero-inclusive samples may estimate different relationships. |
+| Zero-flow sensitivity | Log-linear models exclude zeros; PPML can retain them when they are present. |
+| Variable-definition sensitivity | Trade flows, GDP, distance, and institutional indicators must be constructed consistently. |
+| Standard-error sensitivity | Robust and clustered standard errors answer different uncertainty questions. |
+
+A good robustness section connects each alternative specification to an empirical reason.
+
+## The Post-Soviet replication audit
+
+The executed Python replication produced the following audit summary.
+
+| Item | Result |
+|---|---:|
+| Observations | 5,253 |
+| Columns | 20 |
+| Exporters | 15 |
+| Importers | 15 |
+| Years | 1992-2020 |
+| Zero-flow observations | 0 |
+| Positive-flow observations | 5,253 |
+| Coefficient comparisons | 64 |
+| Exact matches | 40 |
+| Close matches | 4 |
+| Review items | 10 |
+| Not applicable | 10 |
+
+The comparison uses manuscript-reported coefficients and Python estimates from the replication notebook. A coefficient is classified as an exact match when `abs(difference) < 0.001`, close when `abs(difference) < 0.01`, and review otherwise.
+
+## What matched well
+
+The positive-flow models match the manuscript closely. Classic OLS, FE OLS, DDM, BVU, PPML with GDP controls, and GPML broadly validate the Python implementation.
+
+This matters for three reasons. First, the variable construction is consistent with the manuscript for the main positive-flow specifications. Second, the estimator formulas are implemented correctly in Python. Third, the double-demeaning results validate the fixed-effects logic by reproducing the fixed-effects pattern with a manual transformation.
+
+The strong matches also show that differences in later zero-inclusive specifications should not be interpreted as a general Python failure.
+
+## What did not match exactly
+
+The review items are concentrated in zero-inclusive PPML and structural PPML. The reason is substantive and transparent: the teaching dataset has no zero-flow observations, while the manuscript reports broader zero-inclusive PPML estimates.
+
+This is a sample-scope difference. A zero-inclusive estimator cannot fully reproduce a broader zero-inclusive table when the available teaching dataset contains only positive flows. Students should report this difference directly.
+
+Do not silently change the data to force agreement. A discrepancy that is honestly explained is better research than a coefficient that matches for undocumented reasons.
+
+## Coefficient stability matrix
+
+| Variable | Stable? | Interpretation |
+|---|---|---|
+| $log\_distw$ | Yes | Negative across models, confirming persistent trade-cost effects. |
+| $EU\_joint$ | Yes | Consistently positive and the most stable institutional coefficient. |
+| $wto\_joint$ | No | Sign and magnitude depend on the model. |
+| $EAEU\_joint$ | Partial | Positive in several fixed-effects and multiplicative models but not all. |
+| $comlang\_off$ | No | Sign changes across specifications. |
+| $contig$ | No | Sign changes across specifications. |
+
+This matrix helps students separate robust findings from model-dependent findings. Stable results can support the main argument. Unstable results require a more cautious interpretation.
+
+## When replication does not match
+
+Replication differences should be treated as evidence to investigate, not as mistakes to hide. A mismatch can occur even when the code is correct.
+
+Common reasons include:
+
+- different sample definitions;
+- dropped zero trade flows;
+- missing values that remove observations differently across software;
+- fixed-effect structure, especially pair, exporter-year, and importer-year effects;
+- clustered versus robust standard errors;
+- variable scaling, such as trade measured in dollars, thousands, or millions;
+- convergence settings and solver tolerances in nonlinear estimators;
+- software defaults for omitted categories, collinearity, and missing-data handling.
+
+The correct response is to document the mismatch, identify the most likely source, and rerun the model only when the data and specification can be changed transparently. Students should never alter the data silently to make a coefficient match.
+
+In the Post-Soviet replication, the zero-flow mismatch is pedagogically useful. It shows that an estimator label is not enough. A zero-inclusive PPML model requires a sample that actually includes zero-flow observations.
+
+## Research transparency checklist
+
+A replication package should make the research trail visible.
+
+- Dataset version.
+- Code version.
+- Variable definitions.
+- Sample restrictions.
+- Estimator.
+- Fixed effects.
+- Standard-error type.
+- Dropped observations.
+- Convergence status.
+- Replication notes.
+
+Each table in a paper should be traceable to a specific dataset, script, and model specification. If a coefficient changes, the reader should be able to see why.
+
+## How to write robustness findings
+
+Use cautious, specific language.
+
+Template for a robust result:
+
+> The main result is robust across log-linear, fixed-effects, and multiplicative specifications.
+
+Template for a sign change:
+
+> The coefficient changes sign when exporter and importer fixed effects are added, suggesting that the pooled estimate partly reflects country-level heterogeneity.
+
+Template for a sample difference:
+
+> This difference reflects a sample-scope change: the teaching dataset contains no zero-flow observations, while the manuscript's zero-inclusive specification uses a broader sample.
+
+Template for interpretation:
+
+> We interpret this pattern as evidence that the association is sensitive to the treatment of multilateral resistance and should not be read as a simple causal effect.
+
+Avoid writing that a result is "robust" merely because it appears in many tables. Robustness requires a reasoned comparison across credible alternatives.
+
+## Conclusion
+
+Robustness is part of the research argument, not a defensive appendix. In the Post-Soviet replication, the stable negative distance coefficient and consistently positive EU coefficient support the main empirical narrative. The WTO and EAEU results require more caution because they depend more heavily on specification and sample scope.
+
+A transparent paper explains both what matches and what does not. That discipline is what turns a set of regressions into credible applied trade research.

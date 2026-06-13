@@ -1,0 +1,212 @@
+---
+title: "Descriptive Analysis"
+---
+
+## Introduction
+
+Descriptive analysis comes before regression because gravity estimates are easier to interpret when students understand the sample. Before estimating institutional effects, students should know the number of observations, countries, years, zero flows, trade concentration, distance patterns, and institutional variation.
+
+The Post-Soviet teaching dataset contains 5,253 observations, 20 columns, 15 exporters, 15 importers, and years 1992-2020. It contains no zero-flow observations.
+
+## Sample diagnostics
+
+| Item | Result |
+|---|---:|
+| Observations | 5,253 |
+| Columns | 20 |
+| Exporters | 15 |
+| Importers | 15 |
+| Years | 1992-2020 |
+| Zero-flow observations | 0 |
+| Positive-flow observations | 5,253 |
+
+These numbers should appear in the replication notebook and in the paper's data section.
+
+## Load and summarize the data
+
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+df = pd.read_csv("data/ExSoviet_balanced_clean.csv")
+
+summary = {
+    "rows": len(df),
+    "columns": df.shape[1],
+    "exporters": df["iso_o"].nunique(),
+    "importers": df["iso_d"].nunique(),
+    "years": f"{df['year'].min()}-{df['year'].max()}",
+    "zero_flows": int((df["flow"] == 0).sum()),
+    "positive_flows": int((df["flow"] > 0).sum()),
+}
+
+summary
+```
+
+## Zero-flow discussion
+
+The teaching dataset has zero zero-flow observations. This is important for two reasons.
+
+First, log-linear OLS can use the full teaching dataset because all trade flows are positive. Second, the teaching dataset cannot fully reproduce the manuscript's broader zero-inclusive PPML tables, which use a sample that retains zero trade flows.
+
+Students should describe this as a sample-scope issue. It is not a Python error.
+
+## Distribution of trade flows
+
+Trade data are usually skewed. A small number of country pairs often account for a large share of total trade.
+
+```python
+df["log_flow"] = np.log(df["flow"])
+
+fig, ax = plt.subplots()
+ax.hist(df["flow"], bins=40)
+ax.set_title("Distribution of trade flows")
+ax.set_xlabel("Trade flow")
+ax.set_ylabel("Frequency")
+plt.show()
+```
+
+```python
+fig, ax = plt.subplots()
+ax.hist(df["log_flow"], bins=40)
+ax.set_title("Distribution of log trade flows")
+ax.set_xlabel("Log trade flow")
+ax.set_ylabel("Frequency")
+plt.show()
+```
+
+The log distribution is usually more informative because it compresses very large trade flows.
+
+## Top exporters and importers
+
+Do not hard-code rankings. Compute them from the dataset.
+
+```python
+top_exporters = (
+    df.groupby("iso_o", as_index=False)["flow"]
+    .sum()
+    .sort_values("flow", ascending=False)
+    .head(10)
+)
+
+top_importers = (
+    df.groupby("iso_d", as_index=False)["flow"]
+    .sum()
+    .sort_values("flow", ascending=False)
+    .head(10)
+)
+
+top_exporters, top_importers
+```
+
+```python
+fig, ax = plt.subplots()
+ax.bar(top_exporters["iso_o"], top_exporters["flow"])
+ax.set_title("Top exporters in the Post-Soviet sample")
+ax.set_xlabel("Exporter")
+ax.set_ylabel("Total exports")
+ax.tick_params(axis="x", rotation=45)
+plt.tight_layout()
+plt.show()
+```
+
+## Distance and GDP patterns
+
+Gravity models predict that trade rises with economic size and falls with trade costs. Descriptive plots should show whether the sample broadly follows these patterns.
+
+```python
+df["log_distw"] = np.log(df["distw"])
+df["log_gdp_product"] = np.log(df["gdp_o"] * df["gdp_d"])
+
+fig, ax = plt.subplots()
+ax.scatter(df["log_distw"], df["log_flow"], alpha=0.4)
+ax.set_title("Trade and distance")
+ax.set_xlabel("Log weighted distance")
+ax.set_ylabel("Log trade flow")
+plt.show()
+```
+
+```python
+fig, ax = plt.subplots()
+ax.scatter(df["log_gdp_product"], df["log_flow"], alpha=0.4)
+ax.set_title("Trade and economic mass")
+ax.set_xlabel("Log GDP product")
+ax.set_ylabel("Log trade flow")
+plt.show()
+```
+
+These figures are descriptive. They do not replace regression models, but they help motivate them.
+
+## Institutional membership shares
+
+Institutional indicators should be summarized before estimation. Low variation can make coefficients fragile.
+
+```python
+institutional_shares = (
+    df[["wto_joint", "EU_joint", "EAEU_joint"]]
+    .mean()
+    .rename("share")
+    .reset_index()
+    .rename(columns={"index": "variable"})
+)
+
+institutional_shares
+```
+
+The interpretation of institutional coefficients depends on how much pair-year variation exists in these indicators.
+
+## Trade network example
+
+Network analysis is descriptive. It can show hubs, sparse relationships, and regional clustering, but it does not identify causal effects.
+
+The following example builds a directed 2020 trade network. It filters very small flows only for visualization.
+
+```python
+import networkx as nx
+
+network_year = 2020
+network_df = df.loc[df["year"] == network_year].copy()
+
+threshold = network_df["flow"].quantile(0.75)
+network_df = network_df.loc[network_df["flow"] >= threshold].copy()
+
+G = nx.DiGraph()
+
+for row in network_df.itertuples(index=False):
+    G.add_edge(row.iso_o, row.iso_d, weight=row.flow)
+
+node_exports = (
+    df.loc[df["year"] == network_year]
+    .groupby("iso_o")["flow"]
+    .sum()
+    .to_dict()
+)
+
+node_sizes = [node_exports.get(node, 0) / 1_000_000 for node in G.nodes]
+edge_widths = [G[u][v]["weight"] / network_df["flow"].max() * 3 for u, v in G.edges]
+
+pos = nx.spring_layout(G, seed=42)
+
+fig, ax = plt.subplots(figsize=(8, 6))
+nx.draw_networkx_nodes(G, pos, node_size=node_sizes, ax=ax)
+nx.draw_networkx_edges(G, pos, width=edge_widths, arrows=True, ax=ax)
+nx.draw_networkx_labels(G, pos, font_size=8, ax=ax)
+ax.set_title(f"Post-Soviet trade network, {network_year}")
+ax.axis("off")
+plt.show()
+```
+
+Students should describe what the network shows, then connect the pattern to the gravity motivation. Network plots complement regressions; they do not replace them.
+
+## Descriptive outputs for the paper
+
+A strong empirical paper should include:
+
+- a sample diagnostics table;
+- descriptive statistics for `flow`, `gdp_o`, `gdp_d`, and `distw`;
+- top exporter and importer summaries;
+- institutional membership shares;
+- a figure for trade-flow distribution;
+- a figure relating trade to distance or GDP mass;
+- a short paragraph linking descriptive patterns to the regression design.

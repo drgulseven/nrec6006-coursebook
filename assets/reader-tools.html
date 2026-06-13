@@ -1,0 +1,44 @@
+<div class="reader-tools" data-reader-tools>
+  <button
+    class="reader-tools__toggle"
+    type="button"
+    aria-label="Open reader settings"
+    aria-expanded="false"
+    aria-controls="reader-tools-menu"
+    data-reader-toggle
+  >
+    A
+  </button>
+  <div
+    class="reader-tools__menu"
+    id="reader-tools-menu"
+    role="dialog"
+    aria-label="Reader settings"
+    hidden
+    data-reader-menu
+  >
+    <div class="reader-tools__group" role="group" aria-label="Text size">
+      <div class="reader-tools__label">Text size</div>
+      <button type="button" data-reader-size="normal">Normal</button>
+      <button type="button" data-reader-size="large">+25%</button>
+      <button type="button" data-reader-size="xlarge">+50%</button>
+    </div>
+    <div class="reader-tools__group" role="group" aria-label="Reading style">
+      <div class="reader-tools__label">Style</div>
+      <button type="button" data-reader-style="light">Light</button>
+      <button type="button" data-reader-style="sepia">Sepia</button>
+      <button type="button" data-reader-style="dark">Dark</button>
+    </div>
+  </div>
+</div>
+<script>
+  (function () {
+    var stylesheet = document.querySelector('link[href$="assets/reader-tools.css"]');
+    var script = document.createElement("script");
+    if (document.querySelector("script[data-reader-tools-script]")) return;
+    script.src = stylesheet ? new URL("reader-tools.js", stylesheet.href).href : "assets/reader-tools.js";
+    script.async = false;
+    script.dataset.readerToolsScript = "true";
+    document.head.appendChild(script);
+  })();
+</script>

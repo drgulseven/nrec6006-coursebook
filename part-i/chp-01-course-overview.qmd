@@ -1,0 +1,82 @@
+---
+title: "Overview"
+---
+
+## Course philosophy
+
+NREC6006 is not a traditional international trade theory course. It is an applied research course on gravity models in Python. The final objective is a reproducible empirical project that can develop into a publication-style gravity paper.
+
+The course begins with replication. Students replicate a Post-Soviet gravity paper before designing their own regional extension. This sequence teaches how empirical trade research actually works: the paper, data, code, tables, and interpretation must be consistent.
+
+## Why replication comes first
+
+Replication is the starting point because it forces students to answer practical research questions:
+
+- What is the unit of observation?
+- Which variables are required?
+- Which sample restrictions matter?
+- Which estimators are used?
+- Which coefficients are robust?
+- Which discrepancies require explanation?
+
+The reference dataset contains 5,253 observations, 15 exporters, 15 importers, and years 1992-2020. The core institutional variables are $wto\_joint$, $EU\_joint$, and $EAEU\_joint$.
+
+## Why Python is used
+
+Python is used because it supports a complete applied workflow in one environment:
+
+- data inspection and cleaning with `pandas`;
+- numerical transformations with `numpy`;
+- OLS, fixed-effects-style formulas, PPML, and GPML with `statsmodels`;
+- descriptive plots with `matplotlib`;
+- network analysis with `networkx`;
+- reproducible notebooks that combine code, tables, and interpretation.
+
+The course also helps students read gravity examples from other software traditions and translate them into Python-based workflows.
+
+## What students produce
+
+By the end of the course, students produce:
+
+1. a documented gravity dataset;
+2. a reproducible Python notebook;
+3. replication tables for the Post-Soviet paper;
+4. robustness and sensitivity notes;
+5. a presentation;
+6. a publication-style gravity paper.
+
+The paper is not written after the econometrics are finished. It is built throughout the course.
+
+## Replication workflow
+
+The course follows a research workflow:
+
+```text
+research question -> data -> descriptive analysis -> OLS -> FE -> PPML -> robustness -> paper
+```
+
+In practice, the workflow is iterative. Descriptive analysis may reveal a sample issue. Fixed effects may change the institutional interpretation. PPML may raise questions about zero trade flows. Robustness checks may require returning to the data.
+
+## Model sequence
+
+Students learn the estimators in the order needed for the replication:
+
+| Stage | Estimator | Purpose |
+|---|---|---|
+| Baseline | OLS | Teach the log-linear gravity model |
+| Heterogeneity | FE OLS | Control for exporter and importer differences |
+| Transformation | DDM | Show the mechanics behind two-way fixed effects |
+| Normalization | BVU | Study trade intensity relative to economic size |
+| Multiplicative model | PPML | Estimate gravity in levels |
+| Robustness | GPML | Compare alternative multiplicative assumptions |
+| Structural gravity | Structural PPML | Add exporter-year and importer-year fixed effects |
+
+The goal is not to memorize estimators. The goal is to understand what each estimator controls for and how that changes interpretation.
+
+## Output standard
+
+Every student output should be reproducible. A table in the paper must be traceable to a dataset, notebook cell, model formula, and interpretation note.
+
+::: {.callout-note}
+The course standard is not "the coefficient looks right." The standard is: the data, code, estimate, and interpretation can be checked by another researcher.
+:::

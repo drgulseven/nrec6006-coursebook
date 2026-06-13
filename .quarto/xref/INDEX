@@ -1,0 +1,119 @@
+{
+  "index.qmd": {
+    "index.html": "1b6452ce"
+  },
+  "part-i/index.qmd": {
+    "index.html": "4cd8313c"
+  },
+  "part-i/chp-01-course-overview.qmd": {
+    "chp-01-course-overview.html": "ce470a95"
+  },
+  "part-i/chp-02-international-trade-as-applied-research.qmd": {
+    "chp-02-international-trade-as-applied-research.html": "2a89f5bc"
+  },
+  "part-i/chp-03-gravity-model-intuition.qmd": {
+    "chp-03-gravity-model-intuition.html": "30cb4022"
+  },
+  "part-ii/index.qmd": {
+    "index.html": "cd12d0bd"
+  },
+  "part-ii/chp-04-cepii-gravity-database.qmd": {
+    "chp-04-cepii-gravity-database.html": "3d1756ba"
+  },
+  "part-ii/chp-05-data-cleaning-with-python.qmd": {
+    "chp-05-data-cleaning-with-python.html": "6ea308de"
+  },
+  "part-ii/chp-06-descriptive-trade-analysis.qmd": {
+    "chp-06-descriptive-trade-analysis.html": "b9f0af79"
+  },
+  "part-iii/index.qmd": {
+    "index.html": "ea667513"
+  },
+  "part-iii/chp-07-ols-gravity-models.qmd": {
+    "chp-07-ols-gravity-models.html": "b7ab02b4"
+  },
+  "part-iii/chp-08-fixed-effects-and-structural-gravity.qmd": {
+    "chp-08-fixed-effects-and-structural-gravity.html": "39b2bdfc"
+  },
+  "part-iii/chp-09-ppml-gravity-models.qmd": {
+    "chp-09-ppml-gravity-models.html": "243b9df3"
+  },
+  "part-iii/chp-10-robustness-checks.qmd": {
+    "chp-10-robustness-checks.html": "77887101"
+  },
+  "part-iv/index.qmd": {
+    "index.html": "9969ba96"
+  },
+  "part-iv/chp-11-trade-network-analysis.qmd": {
+    "chp-11-trade-network-analysis.html": "4b2c45be"
+  },
+  "part-iv/chp-12-region-specific-gravity-paper.qmd": {
+    "chp-12-region-specific-gravity-paper.html": "5bd75aa0"
+  },
+  "part-iv/chp-13-policy-interpretation.qmd": {
+    "chp-13-policy-interpretation.html": "4b082146"
+  },
+  "part-v/index.qmd": {
+    "index.html": "3540f337"
+  },
+  "part-v/chp-14-research-paper-structure.qmd": {
+    "chp-14-research-paper-structure.html": "cf894913"
+  },
+  "part-v/chp-15-final-paper-workshop.qmd": {
+    "chp-15-final-paper-workshop.html": "b9eb1fdf"
+  },
+  "appendices/appendix-a-python-code-guide.qmd": {
+    "appendix-a-python-code-guide.html": "ad680c28"
+  },
+  "appendices/appendix-b-gravity-formula-sheet.qmd": {
+    "appendix-b-gravity-formula-sheet.html": "01a69b0c"
+  },
+  "appendices/appendix-c-research-paper-template.qmd": {
+    "appendix-c-research-paper-template.html": "c309a409"
+  },
+  "appendices/appendix-d-project-rubric.qmd": {
+    "appendix-d-project-rubric.html": "aa6ddfe3"
+  },
+  "appendices/appendix-e-essential-gravity-literature.qmd": {
+    "appendix-e-essential-gravity-literature.html": "d8aa9353"
+  },
+  "part-iii/chp-09-bonus-vetus-gravity-models.qmd": {
+    "chp-09-bonus-vetus-gravity-models.html": "03ee166e"
+  },
+  "part-iii/chp-10-ppml-gpml-nbpml-zero-inclusive-estimation.qmd": {
+    "chp-10-ppml-gpml-nbpml-zero-inclusive-estimation.html": "ca37af69"
+  },
+  "part-iv/chp-11-replicating-baseline-results.qmd": {
+    "chp-11-replicating-baseline-results.html": "5c546dad"
+  },
+  "part-iv/chp-12-institutional-effects-wto-eu-eaeu.qmd": {
+    "chp-12-institutional-effects-wto-eu-eaeu.html": "8e7bf16e"
+  },
+  "part-iv/chp-13-robustness-sensitivity-research-transparency.qmd": {
+    "chp-13-robustness-sensitivity-research-transparency.html": "db6fd43a"
+  },
+  "part-v/chp-14-writing-region-specific-gravity-paper.qmd": {
+    "chp-14-writing-region-specific-gravity-paper.html": "7526167b"
+  },
+  "part-v/chp-15-final-paper-presentation-revision-workshop.qmd": {
+    "chp-15-final-paper-presentation-revision-workshop.html": "ed474e6d"
+  },
+  "appendices/appendix-a-python-gravity-code-library.qmd": {
+    "appendix-a-python-gravity-code-library.html": "1300e63b"
+  },
+  "appendices/appendix-b-r-to-python-translation-guide.qmd": {
+    "appendix-b-r-to-python-translation-guide.html": "9b9fff9b"
+  },
+  "appendices/appendix-c-gravity-formula-sheet.qmd": {
+    "appendix-c-gravity-formula-sheet.html": "c10c2451"
+  },
+  "appendices/appendix-d-research-paper-template.qmd": {
+    "appendix-d-research-paper-template.html": "863ddf3c"
+  },
+  "appendices/appendix-f-project-rubric.qmd": {
+    "appendix-f-project-rubric.html": "254e8773"
+  },
+  "appendices/index.qmd": {
+    "index.html": "1ce9476c"
+  }
+}

@@ -1,0 +1,134 @@
+---
+title: "Literature"
+---
+
+## Purpose
+
+This appendix is an annotated guide to the gravity literature used in NREC6006. It helps students connect the Post-Soviet replication to credible foundations, modern estimation practice, regional applications, and the final publication-style paper.
+
+## Core Gravity Foundations
+
+| Reference | DOI | Why students should read it | Course fit |
+|---|---|---|---|
+| Tinbergen (1962) | No DOI listed | Introduces the early empirical gravity approach in international trade. | Historical background |
+| Anderson (1979) | No DOI listed | Provides an early theoretical foundation for gravity. | Bridge from empirical regularity to theory |
+| @anderson_vanwincoop_2003 | 10.1257/000282803321455214 | Shows why multilateral resistance matters and why naive gravity estimates can be misleading. | Chp 03 and Chp 08 |
+| @head_mayer_2014 | 10.1016/B978-0-444-54314-1.00003-3 | A broad toolkit for gravity specification, data, and interpretation. | Whole-course reference |
+
+Read these sources to understand why gravity is more than a convenient regression. The course begins with intuition, but the final paper must show awareness of structural gravity.
+
+## Structural Gravity
+
+| Reference | DOI | Why students should read it | Course fit |
+|---|---|---|---|
+| @eaton_kortum_2002 | 10.1111/1468-0262.00352 | Connects technology, geography, and trade within a structural model. | Theory background |
+| @arkolakis_costinot_rodriguezclare_2012 | 10.1257/aer.102.1.94 | Explains welfare gains from trade across modern trade models. | Policy interpretation |
+| @yotov_piermartini_monteiro_larch_2016 | 10.30875/abc0167e-en | Practical guide to structural gravity and trade policy analysis. | Methodology and replication |
+| @fally_2015 | 10.1016/j.jinteco.2015.05.005 | Clarifies the relationship between structural gravity and fixed effects. | Fixed effects and PPML |
+
+Structural gravity matters because it explains why exporter-year and importer-year fixed effects are not decorative controls. They represent the empirical handling of multilateral resistance.
+
+## PPML and Estimation
+
+| Reference | DOI | Why students should read it | Course fit |
+|---|---|---|---|
+| @santos_silva_tenreyro_2006 | 10.1162/rest.88.4.641 | Establishes why log-linear OLS can be biased under heteroskedasticity and why PPML is important. | PPML |
+| @arvis_shepherd_2013 | 10.1080/13504851.2012.718052 | Discusses PPML and the adding-up issue in gravity models. | PPML interpretation |
+| @correia_guimaraes_zylkin_2020 | 10.1177/1536867X20909691 | Explains fast PPML estimation with high-dimensional fixed effects. | Structural PPML and software limits |
+| @herman_2023 | No DOI listed | Gives practical gravity-estimation guidance for applied researchers. | Replication and robustness |
+
+Students should read @santos_silva_tenreyro_2006 before treating PPML as just another robustness check. PPML changes the estimating equation, the dependent variable, and the treatment of zeros.
+
+## Fixed Effects
+
+| Reference | DOI | Why students should read it | Course fit |
+|---|---|---|---|
+| @anderson_vanwincoop_2003 | 10.1257/000282803321455214 | Shows why multilateral resistance must be controlled. | Fixed-effects motivation |
+| @fally_2015 | 10.1016/j.jinteco.2015.05.005 | Links fixed effects to structural gravity. | Chp 08 |
+| @correia_guimaraes_zylkin_2020 | 10.1177/1536867X20909691 | Explains why high-dimensional fixed effects require specialized computation. | PPML and Python Code |
+| @baier_bergstrand_2009 | 10.1016/j.jinteco.2008.10.004 | Develops Bonus Vetus OLS as an approximation to trade-cost effects. | Chp 09 |
+
+The practical lesson is that fixed effects change identification. A coefficient from pooled OLS is not automatically comparable to a coefficient from a pair fixed-effects model.
+
+## Trade Agreements
+
+| Reference | DOI | Why students should read it | Course fit |
+|---|---|---|---|
+| @baier_bergstrand_2007 | 10.1016/j.jinteco.2006.02.005 | Studies whether free trade agreements increase trade and highlights endogeneity concerns. | Institutional variables |
+| @baier_bergstrand_2009 | 10.1016/j.jinteco.2008.10.004 | Provides a method for approximating trade-cost effects with gravity. | Bonus Vetus |
+| @head_mayer_2021 | 10.1257/jep.35.2.23 | Evaluates European integration with gravity methods. | EU interpretation |
+
+These readings help students interpret $EU\_joint$, $EAEU\_joint$, and related institutional variables as conditional associations unless the research design supports stronger causal claims.
+
+## WTO Effects
+
+| Reference | DOI | Why students should read it | Course fit |
+|---|---|---|---|
+| @gulseven_salam_alhadi_2023 | 10.1016/j.sciaf.2023.e01728 | Applies gravity methods to WTO membership and intra-African trade. | Regional extension example |
+| @abdeljalil_gulseven_2026 | 10.1007/s11135-026-02851-6 | Compares EU integration and WTO membership in the Western Balkans. | Institutional interpretation |
+| @herman_2023 | No DOI listed | Provides practical warnings on estimation choices and interpretation. | Robustness and transparency |
+
+The Post-Soviet project treats $wto\_joint$ as a running example of a coefficient that can be specification-sensitive. Students should explain this sensitivity rather than forcing a single story.
+
+## Regional Integration
+
+| Reference | DOI | Why students should read it | Course fit |
+|---|---|---|---|
+| @head_mayer_2021 | 10.1257/jep.35.2.23 | Shows how deep integration can be evaluated with gravity. | EU results |
+| @gulseven_alhadi_salam_2023 | 10.14254/1800-5845/2023.19-4.10 | Applies trade analysis to MENA. | Regional paper model |
+| @gulseven_salam_alhadi_2023 | 10.1016/j.sciaf.2023.e01728 | Studies intra-African trade and WTO membership. | Africa adaptation |
+| @abdeljalil_gulseven_2026 | 10.1007/s11135-026-02851-6 | Studies Western Balkans integration using gravity evidence. | Final-paper extension |
+
+These papers help students move from the Post-Soviet replication to another region such as Africa, GCC, MENA, COMESA, ECOWAS, EAC, ASEAN, or the Western Balkans.
+
+## Post-Soviet and Applied Gravity Papers
+
+The course uses the Post-Soviet manuscript and dataset as the main replication case. The manuscript provides the empirical structure, while the course notebook rebuilds the workflow in Python.
+
+Related applied readings include:
+
+| Reference | DOI | Why students should read it | Course fit |
+|---|---|---|---|
+| @abdeljalil_gulseven_2026 | 10.1007/s11135-026-02851-6 | Useful example of institutional comparison in a region-specific gravity paper. | Final paper design |
+| @gulseven_salam_alhadi_2023 | 10.1016/j.sciaf.2023.e01728 | Shows how WTO membership can be tested in a regional setting. | WTO interpretation |
+| @gulseven_alhadi_salam_2023 | 10.14254/1800-5845/2023.19-4.10 | Demonstrates applied regional trade analysis in MENA. | Regional adaptation |
+| @al_akhzami_zaibet_akintola_gulseven_saboori_2025 | 10.1111/jwip.12326 | Shows how institutional and policy variables can be studied in applied economic research. | Policy-variable thinking |
+| @gulseven_alhadi_zaibet_saboori_alabri_2025 | 10.1016/j.ssaho.2025.102240 | Provides an example of data-driven policy analysis outside standard gravity estimation. | Policy writing |
+
+## Historical Non-DOI References
+
+Do not invent DOI numbers for classic sources. Cite them clearly as historical or working-paper references when used.
+
+| Reference | DOI status | Why it matters |
+|---|---|---|
+| Tinbergen, J. (1962). *Shaping the World Economy: Suggestions for an International Economic Policy*. The Twentieth Century Fund. | No DOI listed | Early empirical gravity source |
+| Anderson, J. E. (1979). A Theoretical Foundation for the Gravity Equation. *American Economic Review*, 69(1), 106-116. | No DOI listed | Early theoretical foundation |
+| Deardorff, A. V. (1998). Determinants of Bilateral Trade: Does Gravity Work in a Neoclassical World? | No DOI listed | Connects gravity to neoclassical trade theory |
+| Herman, P. R. (2023). *Gravity Estimation: Best Practices and Useful Approaches*. U.S. International Trade Commission Working Paper 2023-10-C. | No DOI listed in course reference list | Applied estimation guidance |
+
+## Recommended Reading Sequence
+
+1. Start with @head_mayer_2014 for the broad gravity toolkit.
+2. Read @anderson_vanwincoop_2003 to understand multilateral resistance.
+3. Read @santos_silva_tenreyro_2006 before estimating PPML.
+4. Read @baier_bergstrand_2007 and @baier_bergstrand_2009 before interpreting trade agreements.
+5. Read @yotov_piermartini_monteiro_larch_2016 for structural gravity practice.
+6. Read one applied regional paper that matches the student's final project.
+
+## Minimum Reading List
+
+Every final paper should cite and understand at least:
+
+- @anderson_vanwincoop_2003
+- @santos_silva_tenreyro_2006
+- @head_mayer_2014
+- @yotov_piermartini_monteiro_larch_2016
+- One applied paper directly related to the region or institution studied
+
+## How to Use Literature in the Paper
+
+- Use theory sources to justify the gravity model.
+- Use estimation sources to justify OLS, fixed effects, PPML, and robustness checks.
+- Use applied regional sources to motivate the policy question.
+- Do not cite a paper only because it uses the word "gravity."
+- Explain how each cited source informs the student's empirical design.

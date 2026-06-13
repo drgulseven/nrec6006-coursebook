@@ -1,0 +1,151 @@
+---
+title: "Paper Writing"
+---
+
+## Introduction
+
+The final paper adapts the Post-Soviet replication workflow to a new region or policy question. Students should not start from a blank page. They should start from the replication architecture: data, descriptive evidence, baseline gravity, fixed effects, PPML, robustness, and cautious policy interpretation.
+
+The goal is a publication-style empirical paper supported by a reproducible Python notebook.
+
+## Choosing a region
+
+A good region has a clear economic motivation and enough variation for empirical analysis. The region should be large enough to form bilateral pairs and long enough in time to study policy variation.
+
+Possible regions include Africa, GCC, MENA, COMESA, ECOWAS, EAC, ASEAN, and the Western Balkans.
+
+The region must be justified. Do not choose a region only because data are available. Explain why the region matters for trade policy, integration, food security, logistics, or development.
+
+## Choosing an institutional or policy variable
+
+The policy variable should be measurable at the country-pair-year level whenever possible. Examples include:
+
+- joint WTO membership;
+- joint membership in a regional economic community;
+- shared trade agreement;
+- customs union membership;
+- EU integration status;
+- trade facilitation or logistics indicators.
+
+The variable should have variation. A dummy that is always 0 or always 1 cannot explain bilateral trade differences.
+
+## Turning a policy issue into a gravity question
+
+Weak question:
+
+> Does regional integration matter?
+
+Better question:
+
+> Is joint membership in a regional economic community associated with higher bilateral exports after controlling for GDP, distance, language, contiguity, and fixed effects?
+
+The better question identifies the outcome, policy variable, controls, and empirical comparison.
+
+## Defining the dependent variable
+
+The dependent variable should be a bilateral trade flow. Students must state:
+
+- whether the flow is exports or imports;
+- whether it is total trade or sector-specific trade;
+- whether it is reported by exporter, importer, or reconciled source;
+- whether zero flows are included;
+- the currency and scale.
+
+For log-linear OLS, use positive trade flows. For PPML, use trade in levels and keep zeros when the dataset includes them.
+
+## Choosing the sample period
+
+The sample period should match the policy question. If the policy variable changes in 2015, a one-year cross-section cannot identify before-and-after variation. If the region experienced major shocks, the paper should explain whether those years are included or excluded.
+
+A good data section reports:
+
+- country list;
+- years;
+- number of observations;
+- missing values;
+- zero-flow treatment;
+- source of trade flows and covariates.
+
+## Selecting estimators
+
+The final paper should use a minimum model sequence:
+
+1. baseline OLS;
+2. fixed-effects OLS;
+3. PPML;
+4. at least one robustness check.
+
+Additional estimators may include DDM, BVU, GPML, pair fixed effects, or structural PPML. Use them because they answer a research question, not because more columns look stronger.
+
+## Designing robustness checks
+
+Robustness checks should be theoretically motivated. Common choices include:
+
+- alternative trade-flow measure;
+- alternative distance measure;
+- positive-flow sample versus all valid flows;
+- different fixed-effect structures;
+- PPML versus log-linear OLS;
+- excluding extreme trade-flow observations;
+- region or subperiod checks.
+
+Each robustness check should test whether the main finding depends on a fragile modeling choice.
+
+## Interpreting institutional coefficients cautiously
+
+Institutional variables are not self-interpreting. A positive coefficient on a trade agreement dummy does not automatically prove that the agreement caused trade to increase.
+
+Students should write:
+
+> Joint membership in [policy variable] is associated with higher bilateral trade conditional on the controls and fixed effects.
+
+Avoid:
+
+> [Policy variable] caused trade to increase.
+
+Causal language requires a research design that supports causal identification.
+
+## Regional paper examples
+
+| Region | Possible question | Key variable | Main estimator |
+|---|---|---|---|
+| Africa | Is joint WTO or REC membership associated with intra-African trade? | WTO or REC joint membership | PPML with fixed effects |
+| GCC | Is regional integration associated with oil-linked bilateral trade? | GCC membership or sector indicator | OLS and PPML |
+| MENA | Do WTO membership or trade agreements predict bilateral trade? | WTO or agreement dummy | FE OLS and PPML |
+| COMESA | Does shared bloc membership increase regional exports? | COMESA joint membership | PPML |
+| ECOWAS | Is regional bloc membership associated with higher intra-bloc trade? | ECOWAS joint membership | FE OLS and PPML |
+| EAC | Does deeper regional integration predict bilateral exports? | EAC joint membership | PPML with robustness checks |
+| Western Balkans | Does EU integration matter more than WTO membership? | EU alignment and WTO joint membership | FE OLS and PPML |
+| ASEAN | Are regional trade agreements associated with higher trade? | RTA joint membership | PPML |
+
+These are research-design examples, not pre-written findings.
+
+## From replication to original paper
+
+The move from replication to original paper should be systematic:
+
+- keep the workflow;
+- change the region;
+- change the policy variable;
+- rebuild the dataset;
+- rerun descriptive statistics;
+- rerun OLS, fixed-effects, PPML, and robustness models;
+- rewrite the interpretation for the new setting.
+
+The Post-Soviet paper teaches the architecture. The student's paper applies that architecture to a new empirical question.
+
+## Manuscript structure
+
+A region-specific gravity paper should include:
+
+1. introduction and motivation;
+2. literature and policy context;
+3. data and variables;
+4. gravity model and estimators;
+5. descriptive evidence;
+6. main results;
+7. robustness checks;
+8. policy interpretation;
+9. conclusion and limitations.
+
+The paper should be concise. Tables and figures should support the argument, not replace it.

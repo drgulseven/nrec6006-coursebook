@@ -1,0 +1,14 @@
+main.content {
+  max-width: 920px;
+}
+
+.sidebar nav[role="doc-toc"] ul {
+  line-height: 1.45;
+}
+
+.math.display,
+mjx-container[jax="CHTML"][display="true"] {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
